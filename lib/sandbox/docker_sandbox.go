@@ -58,6 +58,17 @@ func NewDockerSandbox(image string) (*DockerSandbox, error) {
 }
 
 func (s *DockerSandbox) Destroy() {
+	err := s.client.ContainerRemove(
+		context.Background(),
+		s.containerId,
+		types.ContainerRemoveOptions{
+			Force: true,
+		},
+	)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 // TODO: Add connection support

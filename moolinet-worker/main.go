@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 
-	"github.com/superboum/moolinet/lib/worker"
+	"github.com/superboum/moolinet/lib/sandbox"
 )
 
 func main() {
 	s, err := worker.NewDockerSandbox("superboum/moolinet-golang")
+	defer s.Destroy()
+
 	if err != nil {
 		panic(err)
 	}
