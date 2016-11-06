@@ -10,7 +10,7 @@ type Sandbox interface {
 
 	// Run a command in the sandbox and get its outputs
 	// (output, error)
-	Run(env []string, command []string, timeout int, connection bool) (string, error)
+	Run(command []string, timeout int, connection bool) (string, error)
 
 	// Get logs linked to the Sandbox
 	// Useful for debugging

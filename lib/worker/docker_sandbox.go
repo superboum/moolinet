@@ -2,7 +2,9 @@ package worker
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -17,6 +19,13 @@ type DockerSandbox struct {
 	containerId string
 }
 
+type commandOutput struct {
+	output string
+	err    error
+}
+
+// We should use a design pattern such as Fabric or Builder, or somethng similar
+// In order to split the creation logic and the command logic.
 // BUG(#2) We should not try to download the image every time we start a new container. We should check if it exists locally.
 func NewDockerSandbox(image string) (*DockerSandbox, error) {
 	s := new(DockerSandbox)
@@ -50,17 +59,22 @@ func NewDockerSandbox(image string) (*DockerSandbox, error) {
 func (s *DockerSandbox) Destroy() {
 }
 
-// TODO: Add timeout support
 // TODO: Add connection support
-func (s *DockerSandbox) Run(env []string, command []string, timeout int, connection bool) (string, error) {
-	execId, err := s.prepareCommand(env, command)
+func (s *DockerSandbox) Run(command []string, timeout int, connection bool) (string, error) {
+	execId, err := s.prepareCommand(command)
 	if err != nil {
 		return "", err
 	}
 
-	output, err := s.launchCommand(execId, timeout)
+	commandChannel := make(chan commandOutput, 1)
+	go s.launchCommand(execId, commandChannel)
 
-	return output, err
+	select {
+	case res := <-commandChannel:
+		return res.output, res.err
+	case <-time.After(time.Second * time.Duration(timeout)):
+		return "", errors.New("The command has timeout")
+	}
 }
 
 func (s *DockerSandbox) GetLogs() string {
@@ -120,7 +134,7 @@ func (s *DockerSandbox) startContainer() error {
 	return err
 }
 
-func (s *DockerSandbox) prepareCommand(env []string, command []string) (string, error) {
+func (s *DockerSandbox) prepareCommand(command []string) (string, error) {
 	response, err := s.client.ContainerExecCreate(
 		context.Background(),
 		s.containerId,
@@ -129,7 +143,6 @@ func (s *DockerSandbox) prepareCommand(env []string, command []string) (string, 
 			Tty:          true,
 			AttachStdout: true,
 			AttachStderr: true,
-			Env:          env,
 			Cmd:          command,
 		},
 	)
@@ -140,26 +153,36 @@ func (s *DockerSandbox) prepareCommand(env []string, command []string) (string, 
 	return response.ID, nil
 }
 
-func (s *DockerSandbox) launchCommand(execId string, timeout int) (string, error) {
+func (s *DockerSandbox) launchCommand(execId string, commandChannel chan commandOutput) {
+
+	// We must specify the following ExecConfig
+	// Otherwhise the result is corrupted
+	// I don't know why...
 	session, err := s.client.ContainerExecAttach(
 		context.Background(),
 		execId,
-		types.ExecConfig{},
+		types.ExecConfig{
+			Tty:          true,
+			AttachStdout: true,
+			AttachStderr: true,
+		},
 	)
 
 	defer session.Close()
 	if err != nil {
-		return "", err
+		commandChannel <- commandOutput{"", err}
+		return
 	}
 
 	bytesRead, err := ioutil.ReadAll(session.Reader)
 	if err != nil {
 		s.logs += "Unable to read logs while running the command ?? \n"
-		return "", err
+		commandChannel <- commandOutput{"", err}
+		return
 	}
 
 	output := string(bytesRead[:])
 	s.logs += output
 
-	return output, nil
+	commandChannel <- commandOutput{output, nil}
 }

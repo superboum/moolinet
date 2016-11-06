@@ -12,14 +12,28 @@ func main() {
 		panic(err)
 	}
 
-	output, err := s.Run(
-		[]string{"GOPATH=/home/moolinet"},
-		[]string{"go", "get", "github.com/superboum/moolinet"},
-		10, true)
+	output, err := s.Run([]string{"go", "get", "github.com/superboum/atuin"}, 120, true)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("output-->" + output)
 
+	output, err = s.Run([]string{"go", "get", "-d", "github.com/superboum/atuin/..."}, 120, true)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("output-->" + output)
+
+	output, err = s.Run([]string{"go", "install", "github.com/superboum/atuin/..."}, 120, true)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("output-->" + output)
+
+	output, err = s.Run([]string{"atuin-front"}, 30, true)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("output-->" + output)
 
 	fmt.Println(s.GetLogs())
