@@ -10,8 +10,7 @@ moolinet
 ## Installation
 
 ```
-go get github.com/docker/docker
-go get github.com/superboum/moolinet
+go get -d github.com/superboum/moolinet/...
 go install github.com/superboum/moolinet/...
 sudo ./moolinet-worker
 ```

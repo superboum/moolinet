@@ -62,6 +62,8 @@ func (s *DockerSandbox) Destroy() {
 
 // TODO: Add connection support
 func (s *DockerSandbox) Run(command []string, timeout int, connection bool) (string, error) {
+	s.setConnectivity(connection)
+
 	execId, err := s.prepareCommand(command)
 	if err != nil {
 		return "", err
@@ -94,9 +96,7 @@ func (s *DockerSandbox) createContainer() error {
 			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 86400; done"},
 			Image: s.image,
 		}),
-		&(container.HostConfig{
-			NetworkMode: "none",
-		}),
+		&(container.HostConfig{}),
 		&(network.NetworkingConfig{}),
 		"") // We don't want a name for our container
 
@@ -197,4 +197,22 @@ func (s *DockerSandbox) launchCommand(execId string, commandChannel chan command
 	}
 
 	commandChannel <- commandOutput{output, err}
+}
+
+func (s *DockerSandbox) setConnectivity(connection bool) {
+	if connection {
+		s.client.NetworkConnect(
+			context.Background(),
+			"bridge",
+			s.containerId,
+			&network.EndpointSettings{},
+		)
+	} else {
+		s.client.NetworkDisconnect(
+			context.Background(),
+			"bridge",
+			s.containerId,
+			true,
+		)
+	}
 }
