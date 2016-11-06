@@ -9,8 +9,8 @@ type Sandbox interface {
 	Destroy()
 
 	// Run a command in the sandbox and get its outputs
-	// (stdout, stderr, exit_code)
-	Run(command string, connection bool) (string, string, int)
+	// (output, error)
+	Run(env []string, command []string, timeout int, connection bool) (string, error)
 
 	// Get logs linked to the Sandbox
 	// Useful for debugging

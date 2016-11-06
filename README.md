@@ -16,4 +16,8 @@ go install github.com/superboum/moolinet/...
 sudo ./moolinet-worker
 ```
 
+## Images
 
+```
+sudo docker build -t superboum/moolinet-golang:v1 ./images -f ./images/golang.dockerfile
+```

@@ -39,13 +39,28 @@ func NewDockerSandbox(image string) (*DockerSandbox, error) {
 		return nil, err
 	}
 
+	err = s.startContainer()
+	if err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
 func (s *DockerSandbox) Destroy() {
 }
 
-func (s *DockerSandbox) Run(command string, connection bool) {
+// TODO: Add timeout support
+// TODO: Add connection support
+func (s *DockerSandbox) Run(env []string, command []string, timeout int, connection bool) (string, error) {
+	execId, err := s.prepareCommand(env, command)
+	if err != nil {
+		return "", err
+	}
+
+	output, err := s.launchCommand(execId, timeout)
+
+	return output, err
 }
 
 func (s *DockerSandbox) GetLogs() string {
@@ -80,13 +95,13 @@ func (s *DockerSandbox) downloadImage() error {
 		types.ImageCreateOptions{},
 	)
 
+	defer reader.Close()
 	if err != nil {
 		s.logs += "Unable to pull the image " + s.image + "\n"
 		return err
 	}
 
 	bytesRead, err := ioutil.ReadAll(reader)
-	defer reader.Close()
 	if err != nil {
 		s.logs += "Unable to read logs when pulling the image " + s.image + "\n"
 		return err
@@ -94,4 +109,57 @@ func (s *DockerSandbox) downloadImage() error {
 	s.logs += string(bytesRead[:])
 
 	return nil
+}
+
+func (s *DockerSandbox) startContainer() error {
+	err := s.client.ContainerStart(
+		context.Background(),
+		s.containerId,
+		types.ContainerStartOptions{},
+	)
+	return err
+}
+
+func (s *DockerSandbox) prepareCommand(env []string, command []string) (string, error) {
+	response, err := s.client.ContainerExecCreate(
+		context.Background(),
+		s.containerId,
+		types.ExecConfig{
+			Privileged:   false,
+			Tty:          true,
+			AttachStdout: true,
+			AttachStderr: true,
+			Env:          env,
+			Cmd:          command,
+		},
+	)
+
+	if err != nil {
+		return "", err
+	}
+	return response.ID, nil
+}
+
+func (s *DockerSandbox) launchCommand(execId string, timeout int) (string, error) {
+	session, err := s.client.ContainerExecAttach(
+		context.Background(),
+		execId,
+		types.ExecConfig{},
+	)
+
+	defer session.Close()
+	if err != nil {
+		return "", err
+	}
+
+	bytesRead, err := ioutil.ReadAll(session.Reader)
+	if err != nil {
+		s.logs += "Unable to read logs while running the command ?? \n"
+		return "", err
+	}
+
+	output := string(bytesRead[:])
+	s.logs += output
+
+	return output, nil
 }
