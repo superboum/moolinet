@@ -13,28 +13,28 @@ func main() {
 	}
 
 	output, err := s.Run([]string{"go", "get", "github.com/superboum/atuin"}, 120, true)
+	fmt.Println("output-->" + output)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("output-->" + output)
 
 	output, err = s.Run([]string{"go", "get", "-d", "github.com/superboum/atuin/..."}, 120, true)
+	fmt.Println("output-->" + output)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("output-->" + output)
 
-	output, err = s.Run([]string{"go", "install", "github.com/superboum/atuin/..."}, 120, true)
+	output, err = s.Run([]string{"go", "install", "github.com/superboum/atuin/..."}, 120, false)
+	fmt.Println("output-->" + output)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("output-->" + output)
 
-	output, err = s.Run([]string{"atuin-front"}, 30, true)
+	output, err = s.Run([]string{"atuin-front"}, 30, false)
+	fmt.Println("output-->" + output)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("output-->" + output)
 
 	fmt.Println(s.GetLogs())
 }

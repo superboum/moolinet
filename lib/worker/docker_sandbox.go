@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
+	"strconv"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -93,7 +94,9 @@ func (s *DockerSandbox) createContainer() error {
 			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 86400; done"},
 			Image: s.image,
 		}),
-		&(container.HostConfig{}),
+		&(container.HostConfig{
+			NetworkMode: "none",
+		}),
 		&(network.NetworkingConfig{}),
 		"") // We don't want a name for our container
 
@@ -184,5 +187,14 @@ func (s *DockerSandbox) launchCommand(execId string, commandChannel chan command
 	output := string(bytesRead[:])
 	s.logs += output
 
-	commandChannel <- commandOutput{output, nil}
+	inspection, err := s.client.ContainerExecInspect(
+		context.Background(),
+		execId,
+	)
+
+	if err == nil && inspection.ExitCode != 0 {
+		err = errors.New("Terminated with exit code " + strconv.Itoa(inspection.ExitCode))
+	}
+
+	commandChannel <- commandOutput{output, err}
 }
