@@ -1,0 +1,14 @@
+{
+  "Title": "Challenge Test #1",
+  "Body": "Hello World",
+  "Executions": [
+    {
+      "Command": [ "ls" ],
+      "Timeout": 12,
+      "Status": 0,
+      "Network": true,
+      "Output": "",
+      "Error": null
+    }
+  ]
+}
