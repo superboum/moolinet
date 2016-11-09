@@ -1,6 +1,6 @@
 // Libraries related to the worker of moolinet
 // It will compile, analyse and execute the code in a sandbox
-package worker
+package sandbox
 
 // The sandbox interface which enable you to run your program indepandtly of the implementation of the sandbox
 type Sandbox interface {

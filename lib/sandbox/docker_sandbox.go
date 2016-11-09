@@ -1,4 +1,4 @@
-package worker
+package sandbox
 
 import (
 	"context"
@@ -123,11 +123,11 @@ func (s *DockerSandbox) downloadImage() error {
 		types.ImageCreateOptions{},
 	)
 
-	defer reader.Close()
 	if err != nil {
 		s.logs += "Unable to pull the image " + s.image + "\n"
 		return err
 	}
+	defer reader.Close()
 
 	bytesRead, err := ioutil.ReadAll(reader)
 	if err != nil {
