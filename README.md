@@ -1,6 +1,8 @@
 moolinet
 ========
 
+![Travis Moolinet](https://api.travis-ci.org/superboum/moolinet.svg?branch=master)
+
 ## Requirements
 
  * Go 1.7
