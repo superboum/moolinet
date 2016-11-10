@@ -5,17 +5,10 @@ import (
 	"io"
 )
 
-const (
-	WAIT   = iota
-	LAUNCH = iota
-	DONE   = iota
-)
-
 type Execution struct {
 	Command []string
 	Network bool
 	Timeout int
-	Status  int
 	Output  string
 	Error   error
 }

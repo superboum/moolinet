@@ -8,6 +8,7 @@ import (
 type Challenge struct {
 	Title      string
 	Body       string
+	Image      string
 	Executions []Execution
 }
 
