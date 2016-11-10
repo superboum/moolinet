@@ -26,3 +26,17 @@ func NewExecutionFromJSON(reader io.Reader) (*Execution, error) {
 
 	return exec, nil
 }
+
+func (e *Execution) DeepCopy() Execution {
+	f := Execution{}
+
+	f.Command = make([]string, len(e.Command))
+	copy(f.Command, e.Command)
+
+	e.Network = f.Network
+	e.Timeout = f.Timeout
+	e.Output = f.Output
+	e.Error = f.Error
+
+	return f
+}

@@ -6,10 +6,10 @@ import (
 )
 
 type Challenge struct {
-	Title      string
-	Body       string
-	Image      string
-	Executions []Execution
+	Title    string
+	Body     string
+	Image    string
+	Template JobTemplate
 }
 
 func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {

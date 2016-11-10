@@ -1,31 +1,41 @@
 package tasks
 
 import (
+	"github.com/superboum/moolinet/lib/sandbox"
+	"github.com/superboum/moolinet/lib/tools"
 	"log"
 )
 
 type Job struct {
-	UID        string
+	UUID       string
 	Image      string
 	Executions []Execution
 	Status     int
 }
 
-func NewJob(image string, et ExecutionsTemplate) {
+func NewJob(image string, template JobTemplate, variables map[string]string) (*Job, error) {
 	j := new(Job)
+
+	uuid, err := tools.NewUUID()
+	if err != nil {
+		return nil, err
+	}
+
+	j.UUID = uuid
 	j.Image = image
-	j.Executions = et.GenerateExecution()
-	return et
+	j.Executions = template.GenerateExecution(variables)
+
+	return j, nil
 }
 
 func (j *Job) Process() {
 	// Run the task
-	sandbox, err := sandbox.NewDockerSandbox(job.Image)
+	sandbox, err := sandbox.NewDockerSandbox(j.Image)
 	if err != nil {
-		Log.Println("Unable to create the sandbox")
+		log.Println("Unable to create the sandbox")
 	}
 
-	for _, exec := range sandbox.Executions {
-		exec.Output, exec.Error = sandbox.Run(exec.Command, exec.Network, exec.Timeout)
+	for _, exec := range j.Executions {
+		exec.Output, exec.Error = sandbox.Run(exec.Command, exec.Timeout, exec.Network)
 	}
 }

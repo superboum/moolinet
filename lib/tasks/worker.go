@@ -12,7 +12,7 @@ func NewWorker(Jobs JobQueue) *Worker {
 
 func (w *Worker) Launch() {
 	for {
-		job <- w.Jobs.Queue
+		job := w.Jobs.Get()
 		job.Process()
 	}
 }
