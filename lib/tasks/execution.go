@@ -33,10 +33,10 @@ func (e *Execution) DeepCopy() Execution {
 	f.Command = make([]string, len(e.Command))
 	copy(f.Command, e.Command)
 
-	e.Network = f.Network
-	e.Timeout = f.Timeout
-	e.Output = f.Output
-	e.Error = f.Error
+	f.Network = e.Network
+	f.Timeout = e.Timeout
+	f.Output = e.Output
+	f.Error = e.Error
 
 	return f
 }
