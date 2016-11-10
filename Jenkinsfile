@@ -12,7 +12,9 @@ node {
         checkout scm
         sh 'go get -d -v ./...'
     }
-    sh 'git --git-dir src/github.com/docker/docker/.git checkout 667315576fac663bd80bbada4364413692e57ac6 > /dev/null'
+    dir('src/github.com/docker/docker') {
+      sh 'git checkout 667315576fac663bd80bbada4364413692e57ac6 > /dev/null'
+    }
   }
 
   stage('Test') {
