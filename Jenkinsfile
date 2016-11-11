@@ -1,6 +1,6 @@
 node {
   stage('Configure') {
-    deleteDir('src/github.com/superboum/moolinet')
+    deleteDir()
     def workspace = pwd()
     env.GOPATH="${workspace}"
     sh 'mkdir -p bin pkg src src/github.com/superboum/moolinet'
