@@ -1,39 +1,40 @@
 package tasks
 
 import (
+	"strings"
 	"testing"
 )
 
 func TestWorker(t *testing.T) {
-	/*
-		// Worker + Queue
-		t.Log("Creation of the queue and the worker")
-		jq := NewJobQueue()
-		w := NewWorker(jq)
-		t.Log("Launch the worker")
-		w.Launch()
+	// Worker + Queue
+	jq := NewJobQueue()
+	w := NewWorker(jq)
+	w.Launch()
 
-		// Job template + creation
-		t.Log("Creation of the job")
-		jt := JobTemplate{[]Execution{Execution{
-			Command: []string{"cat", "[PATH]"},
-			Network: true,
-			Timeout: 120}}}
-		vars := map[string]string{
-			"[PATH]": "/etc/host"}
-		j, err := NewJob("superboum/moolinet-golang", jt, vars)
-		if err != nil {
-			t.Error("Couldn't create a job", err)
-			return
-		}
+	// Job template + creation
+	jt := JobTemplate{[]Execution{Execution{
+		Command: []string{"cat", "[PATH]"},
+		Network: true,
+		Timeout: 120}}}
+	vars := map[string]string{
+		"[PATH]": "/etc/hosts"}
+	j, err := NewJob("superboum/moolinet-golang", jt, vars)
+	if err != nil {
+		t.Error("Couldn't create a job", err)
+		return
+	}
 
-		t.Log("Add the job to the worker")
-		// Add the job to the queue
-		jq.Add(j)
+	// Add the job to the queue
+	jq.Add(j)
 
-		t.Log("Wait for the output of the job")
-		for progress := range j.Progress {
-			t.Log(progress.Output)
-		}
-	*/
+	for progress := range j.Progress {
+		t.Log(progress.Output)
+	}
+
+	if j.Executions[0].Error != nil {
+		t.Error("Should not be errored", j.Executions[0].Error)
+	}
+	if !strings.Contains(j.Executions[0].Output, "127.0.0.1") {
+		t.Error("Wrong output", j.Executions[0].Output)
+	}
 }

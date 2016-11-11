@@ -54,6 +54,7 @@ func (j *Job) Process() error {
 		if err != nil {
 			break
 		}
+		close(j.Progress)
 	}
 
 	return nil
