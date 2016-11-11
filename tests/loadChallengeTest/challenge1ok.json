@@ -1,0 +1,15 @@
+{
+  "Slug": "challenge1ok",
+  "Title": "Challenge 1 Ok",
+  "Body": "This is my body",
+  "Image": "superboum/moolinet-golang",
+  "Template": {
+    "Executions": [
+      {
+        "Command": ["cat", "/etc/hosts"],
+        "Network": false,
+        "Timeout": 30
+      }
+    ]
+  }
+}

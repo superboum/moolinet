@@ -1,0 +1,25 @@
+{
+  "Slug": "challenge3ok",
+  "Title": "Challenge 3 Ok",
+  "Body": "This is my body",
+  "Image": "superboum/moolinet-golang",
+  "Template": {
+    "Executions": [
+      {
+        "Command": ["git", "clone", "[GIT-REPO]"],
+        "Network": true,
+        "Timeout": 120
+      },
+      {
+        "Command": ["uname", "-a"],
+        "Network": false,
+        "Timeout": 30
+      },
+      {
+        "Command": ["ls", "/etc"],
+        "Network": false,
+        "Timeout": 30
+      }
+    ]
+  }
+}

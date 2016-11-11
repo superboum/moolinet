@@ -1,0 +1,15 @@
+{
+  "Slug": "challenge2ok",
+  "Title": "Challenge 2 Ok",
+  "Body": "This is my body\nthis is a multiline body\nwith *some* markdown",
+  "Image": "superboum/moolinet-golang",
+  "Template": {
+    "Executions": [
+      {
+        "Command": ["ls", "-lah"],
+        "Network": false,
+        "Timeout": 30
+      }
+    ]
+  }
+}

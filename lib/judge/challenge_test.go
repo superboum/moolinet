@@ -26,3 +26,10 @@ func TestNewChallengeFromJSON(t *testing.T) {
 
 	t.Log(chal)
 }
+
+func TestLoadChallengesFromPath(t *testing.T) {
+	list, err, warn := LoadChallengesFromPath("../../tests/loadChallengeTest")
+	if err != nil || len(list) != 3 || len(warn) != 1 {
+		t.Error("Did not load sucessfully", len(list), err, len(warn), warn)
+	}
+}
