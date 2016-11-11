@@ -9,6 +9,21 @@
         "Command": ["ls", "-lah"],
         "Network": false,
         "Timeout": 30
+      },
+      {
+        "Command": ["cat", "/etc/hosts"],
+        "Network": false,
+        "Timeout": 30
+      },
+      {
+        "Command": ["echo", "[GIT-REPO]"],
+        "Network": false,
+        "Timeout": 30
+      },
+      {
+        "Command": ["uname", "-a"],
+        "Network": false,
+        "Timeout": 30
       }
     ]
   }

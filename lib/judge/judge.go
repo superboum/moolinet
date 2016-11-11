@@ -8,27 +8,45 @@ import (
 type Judge struct {
 	Queue      *tasks.JobQueue
 	Worker     *tasks.Worker
-	Challenges map[string]Challenge
+	Challenges map[string]*Challenge
 	Config     *tools.Config
+	Warnings   []error
 }
 
-func NewSimpleJudge(conf *tools.Config) *Judge {
+func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j := new(Judge)
 	j.Queue = tasks.NewJobQueue()
 	j.Worker = tasks.NewWorker(j.Queue)
 	j.Config = conf
+	j.Warnings = make([]error, 0)
 
-	j.ReloadChallenge()
+	err := j.ReloadChallenge()
+	if err != nil {
+		return nil, err
+	}
+
 	j.Worker.Launch()
-
-	return j
+	return j, nil
 }
 
-func (j *Judge) ReloadChallenge() {
+func (j *Judge) ReloadChallenge() error {
 	// Load challenges
-	// j.Challenges = LoadChallengesFromPath(j.Config.ChallengesPath)
+	chal, err, warn := LoadChallengesFromPath(j.Config.ChallengesPath)
+	if err != nil {
+		return err
+	}
+	j.Warnings = append(j.Warnings, warn...)
+	j.Challenges = chal
+	return nil
+
 }
 
-func (j *Judge) Submit(challengeID string, vars []string) *tasks.Job {
-	return nil
+func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) {
+	job, err := tasks.NewJob(j.Challenges[slug].Image, j.Challenges[slug].Template, vars)
+	if err != nil {
+		return nil, err
+	}
+	j.Queue.Add(job)
+
+	return job, nil
 }
