@@ -21,7 +21,7 @@ git --git-dir ../../docker/docker/.git checkout 667315576fac663bd80bbada43644136
 cd -
 
 # Test it !
-go test -v ./... # (as root)
+go test -v ./... # (you should be in the docker group or run this test as root)
 ```
 
 ## Images
@@ -30,10 +30,3 @@ go test -v ./... # (as root)
 sudo docker build -t superboum/moolinet-golang:v1 ./images -f ./images/golang.dockerfile
 ```
 
-## Run the tests
-
-Tests must be run as root because we are making some calls to Docker. You'll probably have to define your `GOPATH`. An example:
-
-```
-sudo su -c "GOPATH=/your/go/path go test github.com/superboum/moolinet/..."
-```
