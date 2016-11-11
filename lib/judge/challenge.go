@@ -1,15 +1,17 @@
-package tasks
+package judge
 
 import (
 	"encoding/json"
 	"io"
+
+	"github.com/superboum/moolinet/lib/tasks"
 )
 
 type Challenge struct {
 	Title    string
 	Body     string
 	Image    string
-	Template JobTemplate
+	Template tasks.JobTemplate
 }
 
 func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {
