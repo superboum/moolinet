@@ -1,7 +1,7 @@
 moolinet
 ========
 
-![Travis Moolinet](https://api.travis-ci.org/superboum/moolinet.svg?branch=master)
+[![Build Status](http://ci.deuxfleurs.fr/job/moolinet/job/master/badge/icon)](http://ci.deuxfleurs.fr/job/moolinet/job/master/)
 
 ## Requirements
 
@@ -11,14 +11,18 @@ moolinet
 
 ## Installation
 
-```
+```bash
+# Download the project with its dependencies
 go get -d github.com/superboum/moolinet/...
-go install github.com/superboum/moolinet/...
+
+# Docker does not follow the go convention "don't break your API"
+cd ../../docker/docker
 git --git-dir ../../docker/docker/.git checkout 667315576fac663bd80bbada4364413692e57ac6
+cd -
+
+# Test it !
 go test -v ./... # (as root)
 ```
-
-*I'm considering using golang vendors to fix problems linked to the docker API change*
 
 ## Images
 
