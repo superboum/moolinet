@@ -17,14 +17,14 @@
           <ul class="pure-menu-list">
             <li class="pure-menu-heading">Épreuves</li>
             <li class="pure-menu-item">
-              <a href="#" class="pure-menu-link">liste</a>
+              <a href="#/challenge" class="pure-menu-link">liste</a>
             </li>
             <li class="pure-menu-item">
-              <a href="#" class="pure-menu-link">classement</a>
+              <a href="#/hall-of-fame" class="pure-menu-link">classement</a>
             </li>
             <li class="pure-menu-heading">mon compte</li>
             <li class="pure-menu-item">
-              <a href="#" class="pure-menu-link">configuration</a>
+              <a href="#/configuration" class="pure-menu-link">configuration</a>
             </li>
             <li class="pure-menu-item">
               <a href="#" class="pure-menu-link">déconnexion</a>
@@ -34,21 +34,13 @@
       </div>
 
       <div class="pure-u-1 pure-u-md-5-6">
-        <div class="pure-g" ng-controller="ChallengeListController as chalList">
-          <div ng-repeat="chal in chalList.list" class="pure-u-1 pure-u-md-1-4">
-            <a href="/">
-              <div class="card">
-                <h3>{{ chal.title }}</h3>
-                <p>{{ chal.description }}</p>
-              </div>
-            </a>
-          </div>
-       </div>
+        <div ng-view></div>
       </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"> </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-resource.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
