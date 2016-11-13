@@ -22,13 +22,21 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
   }])
 
   .factory('Challenge', ['$resource', function($resource) {
-    return $resource('/api/challenge/:slug', {slug:'@id'});
+    var Challenge = $resource('/api/challenge/:slug', {slug:'@id'});
+    var list = []
+
+    return {
+      load: function(cb) { if (list.length == 0) { list = Challenge.query(cb) } else { cb(); } },
+      getList: function() { return list; },
+      getChallenge: function(slug) { return list.find(function(elem) { return elem.Slug == slug }); }
+    }
   }])
 
   .controller('ChallengeListController', ['Challenge', function(Challenge) {
-    this.list = Challenge.query();
+    Challenge.load(function() { this.list = Challenge.getList(); }.bind(this));
   }])
 
-  .controller('ChallengeViewController', ['Challenge', function(Challenge) {
+  .controller('ChallengeViewController', ['Challenge', '$routeParams', function(Challenge, $routeParams) {
+    Challenge.load(function() { this.selected = Challenge.getChallenge($routeParams.slug); }.bind(this));
   }])
 ;
