@@ -1,6 +1,8 @@
 package judge
 
 import (
+	"errors"
+
 	"github.com/superboum/moolinet/lib/tasks"
 	"github.com/superboum/moolinet/lib/tools"
 )
@@ -46,7 +48,11 @@ func (j *Judge) ReloadChallenge() error {
 }
 
 func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) {
-	job, err := tasks.NewJob(j.Challenges[slug].Image, j.Challenges[slug].Template, vars)
+	chal, ok := j.Challenges[slug]
+	if !ok {
+		return nil, errors.New("This challenge does not exist")
+	}
+	job, err := tasks.NewJob(chal.Image, chal.Template, vars)
 	if err != nil {
 		return nil, err
 	}
