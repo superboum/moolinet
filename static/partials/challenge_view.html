@@ -6,8 +6,7 @@
       <p>
         <a href="#/challenge"> Retour à la liste des épreuves </a>
       </p>
-      <div>
-        {{ chal.selected.Body }}
+      <div ng-bind-html="chal.selected.Body | to_trusted">
       </div>
     </div>
   </div>

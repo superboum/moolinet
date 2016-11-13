@@ -22,7 +22,7 @@ node {
 
   stage('Test') {
     dir('src/github.com/superboum/moolinet') {
-        sh 'go test -v ./...'
+        sh 'go test ./...'
     }
   }
 }

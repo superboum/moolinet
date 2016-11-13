@@ -32,11 +32,22 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
     }
   }])
 
+  .filter('to_trusted', ['$sce', function($sce){
+    return function(text) {
+      return $sce.trustAsHtml(text);
+    };
+  }])
+
   .controller('ChallengeListController', ['Challenge', function(Challenge) {
     Challenge.load(function() { this.list = Challenge.getList(); }.bind(this));
   }])
 
   .controller('ChallengeViewController', ['Challenge', '$routeParams', function(Challenge, $routeParams) {
-    Challenge.load(function() { this.selected = Challenge.getChallenge($routeParams.slug); }.bind(this));
+    Challenge.load(function() {
+      this.selected = Challenge.getChallenge($routeParams.slug);
+      if (this.selected) {
+        this.selected.Body = marked(this.selected.Body);
+      }
+    }.bind(this));
   }])
 ;
