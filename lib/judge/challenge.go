@@ -12,11 +12,12 @@ import (
 )
 
 type Challenge struct {
-	Slug     string
-	Title    string
-	Body     string
-	Image    string
-	Template tasks.JobTemplate
+	Slug        string
+	Title       string
+	Description string
+	Body        string
+	Image       string            `json:",omitempty"`
+	Template    tasks.JobTemplate `json:",omitempty"`
 }
 
 func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {
@@ -29,6 +30,16 @@ func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {
 	}
 
 	return chal, nil
+}
+
+func (c *Challenge) GetPublicChallenge() *Challenge {
+	newChal := new(Challenge)
+	newChal.Slug = c.Slug
+	newChal.Title = c.Title
+	newChal.Description = c.Description
+	newChal.Body = c.Body
+
+	return newChal
 }
 
 // LoadChallengesFromPath returns a map of challenge, a potential blocking error and a list of warning caused by unreadable challenges
@@ -62,4 +73,14 @@ func LoadChallengesFromPath(challengePath string) (map[string]*Challenge, error,
 	}
 
 	return res, nil, loadErrors
+}
+
+func GeneratePublicChallenges(challenges map[string]*Challenge) []*Challenge {
+	res := make([]*Challenge, 0, len(challenges))
+
+	for _, val := range challenges {
+		res = append(res, val.GetPublicChallenge())
+	}
+
+	return res
 }

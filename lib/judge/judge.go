@@ -6,11 +6,12 @@ import (
 )
 
 type Judge struct {
-	Queue      *tasks.JobQueue
-	Worker     *tasks.Worker
-	Challenges map[string]*Challenge
-	Config     *tools.Config
-	Warnings   []error
+	Queue            *tasks.JobQueue
+	Worker           *tasks.Worker
+	Challenges       map[string]*Challenge
+	PublicChallenges []*Challenge
+	Config           *tools.Config
+	Warnings         []error
 }
 
 func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
@@ -36,7 +37,10 @@ func (j *Judge) ReloadChallenge() error {
 		return err
 	}
 	j.Warnings = append(j.Warnings, warn...)
+
 	j.Challenges = chal
+	j.PublicChallenges = GeneratePublicChallenges(chal)
+
 	return nil
 
 }
