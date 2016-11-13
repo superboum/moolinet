@@ -32,6 +32,13 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
     }
   }])
 
+  .factory('Job', ['$resource', function($resource) {
+    var Job = $resource('/api/job/:slug', {slug:'@id'});
+    return {
+      submit: function(slug, vars, cb) { Job.save({Slug: slug, Vars: vars}, cb); }
+    };
+  }])
+
   .filter('to_trusted', ['$sce', function($sce){
     return function(text) {
       return $sce.trustAsHtml(text);
@@ -42,12 +49,16 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
     Challenge.load(function() { this.list = Challenge.getList(); }.bind(this));
   }])
 
-  .controller('ChallengeViewController', ['Challenge', '$routeParams', function(Challenge, $routeParams) {
+  .controller('ChallengeViewController', ['Challenge', 'Job', '$routeParams', "$scope", function(Challenge, Job, $routeParams, $scope) {
     Challenge.load(function() {
       this.selected = Challenge.getChallenge($routeParams.slug);
-      if (this.selected) {
-        this.selected.Body = marked(this.selected.Body);
-      }
+      if (this.selected) { this.selected.Body = marked(this.selected.Body); }
     }.bind(this));
+
+    $scope.submitAnswer = function() {
+      Job.submit($routeParams.slug, {"[CODE]": $scope.code}, function(res) {
+        console.log(res);
+      });
+    }
   }])
 ;
