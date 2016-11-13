@@ -6,6 +6,10 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
         templateUrl: 'partials/challenge.html',
         controller: 'ChallengeListController'
       })
+      .when('/challenge/:slug', {
+        templateUrl: 'partials/challenge_view.html',
+        controller: 'ChallengeViewController'
+      })
       .when('/hall-of-fame', {
       })
       .when('/configuration', {
@@ -17,12 +21,14 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
       })
   }])
 
-  .controller('ChallengeListController', function() {
-    this.list = [
-      {"title": "Hello world", "description": "bonjour le monde"},
-      {"title": "Hello world 1", "description": "bonjour le monde"},
-      {"title": "Hello world 2", "description": "bonjour le monde"},
-      {"title": "Hello world 3", "description": "bonjour le monde"},
-    ]
-  })
+  .factory('Challenge', ['$resource', function($resource) {
+    return $resource('/api/challenge/:slug', {slug:'@id'});
+  }])
+
+  .controller('ChallengeListController', ['Challenge', function(Challenge) {
+    this.list = Challenge.query();
+  }])
+
+  .controller('ChallengeViewController', ['Challenge', function(Challenge) {
+  }])
 ;

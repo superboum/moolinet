@@ -1,7 +1,7 @@
 {
-  "Slug": "01-challenge-ok",
-  "Title": "#01 Challenge OK",
-  "Description": "A first challenge",
+  "Slug": "05-challenge-ok",
+  "Title": "#05 Challenge OK",
+  "Description": "A 5th challenge",
   "Body": "This is my body",
   "Image": "superboum/moolinet-golang",
   "Template": {

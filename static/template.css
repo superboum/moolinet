@@ -2,7 +2,7 @@ html, body, .layout, h1, p, .pure-g [class*="pure-u"] {
   font-family: "Courier New", Courier, monospace;
 }
 
-html, body, .layout {
+html, body, .layout, .full-height {
   height: 100%;
 }
 
@@ -22,11 +22,16 @@ html, body, .layout {
   text-decoration: none;
 }
 
-a {
+.no-decoration {
   color: #444;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 .card:hover {
   background-color: #eee;
+}
+
+.content {
+  margin: 10px 20px;
+  padding: 10px 20px;
 }

@@ -1,9 +1,9 @@
 <div class="pure-g" ng-controller="ChallengeListController as chalList">
-  <div ng-repeat="chal in chalList.list" class="pure-u-1 pure-u-md-1-4">
-    <a href="/">
+  <div ng-repeat="chal in chalList.list | orderBy:'Title'" class="pure-u-1 pure-u-md-1-4">
+    <a href="#/challenge/{{ chal.Slug }}" class="no-decoration">
       <div class="card">
-        <h3>{{ chal.title }}</h3>
-        <p>{{ chal.description }}</p>
+        <h3>{{ chal.Title }}</h3>
+        <p>{{ chal.Description }}</p>
       </div>
     </a>
   </div>
