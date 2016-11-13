@@ -1,0 +1,54 @@
+<!doctype html>
+<html ng-app="moolinet">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>moolinet</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <link rel="stylesheet" href="template.css">
+  </head>
+  <body>
+    <div class="layout pure-g">
+      <div class="sidebar pure-u-1 pure-u-md-1-6">
+        <h1>moolinet</h1>
+
+        <div class="pure-menu">
+          <ul class="pure-menu-list">
+            <li class="pure-menu-heading">Épreuves</li>
+            <li class="pure-menu-item">
+              <a href="#" class="pure-menu-link">liste</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="#" class="pure-menu-link">classement</a>
+            </li>
+            <li class="pure-menu-heading">mon compte</li>
+            <li class="pure-menu-item">
+              <a href="#" class="pure-menu-link">configuration</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="#" class="pure-menu-link">déconnexion</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pure-u-1 pure-u-md-5-6">
+        <div class="pure-g" ng-controller="ChallengeListController as chalList">
+          <div ng-repeat="chal in chalList.list" class="pure-u-1 pure-u-md-1-4">
+            <a href="/">
+              <div class="card">
+                <h3>{{ chal.title }}</h3>
+                <p>{{ chal.description }}</p>
+              </div>
+            </a>
+          </div>
+       </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"> </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-resource.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

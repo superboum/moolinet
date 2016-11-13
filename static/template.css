@@ -1,0 +1,32 @@
+html, body, .layout, h1, p, .pure-g [class*="pure-u"] {
+  font-family: "Courier New", Courier, monospace;
+}
+
+html, body, .layout {
+  height: 100%;
+}
+
+.sidebar {
+  background-color: #eee;
+}
+
+.sidebar h1 {
+  padding: .5em 1em;
+}
+
+.card {
+  border: 1px solid #aaa;
+  margin: 10px;
+  padding: 10px;
+  color: #444;
+  text-decoration: none;
+}
+
+a {
+  color: #444;
+  text-decoration: none;
+}
+
+.card:hover {
+  background-color: #eee;
+}

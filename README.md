@@ -16,12 +16,11 @@ moolinet
 go get -d github.com/superboum/moolinet/...
 
 # Docker does not follow the go convention "don't break your API"
-cd ../../docker/docker
-git --git-dir ../../docker/docker/.git checkout 667315576fac663bd80bbada4364413692e57ac6
-cd -
+cd $GOPATH/src/github.com/docker/docker
+git checkout 667315576fac663bd80bbada4364413692e57ac6
 
 # Test it !
-go test -v ./... # (you should be in the docker group or run this test as root)
+go test -v github.com/superboum/moolinet/... # (you should be in the docker group or run this test as root)
 ```
 
 ## Images
