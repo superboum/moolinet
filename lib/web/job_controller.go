@@ -50,7 +50,6 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 		return
 	}
-
 	encoder.Encode(job)
 }
 

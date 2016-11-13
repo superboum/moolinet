@@ -6,7 +6,7 @@ type JobQueue struct {
 
 func NewJobQueue() *JobQueue {
 	jq := new(JobQueue)
-	jq.Queue = make(chan *Job)
+	jq.Queue = make(chan *Job, 200)
 
 	return jq
 }

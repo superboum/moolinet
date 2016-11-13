@@ -18,7 +18,7 @@ type Job struct {
 	Image      string
 	Executions []Execution
 	Status     int
-	Progress   chan Execution
+	Progress   chan Execution `json:"-"`
 }
 
 func NewJob(image string, template JobTemplate, variables map[string]string) (*Job, error) {
@@ -54,8 +54,8 @@ func (j *Job) Process() error {
 		if err != nil {
 			break
 		}
-		close(j.Progress)
 	}
+	close(j.Progress)
 
 	return nil
 }
