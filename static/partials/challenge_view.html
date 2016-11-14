@@ -30,6 +30,11 @@
       <div class="progress" ng-show="job != null && job.Status == 4">
         <p class="icon">&#10007;</p>
         <p class="text">ERROR</p>
+        <p class="text">
+          <a href="" ng-click="job = null">
+            Retry
+          </a>
+        </p>
       </div>
 
       <div ng-repeat="exec in job.Executions">
@@ -38,7 +43,7 @@
           <span ng-show="!exec.Run">&#8987;</span>
           <span ng-show="exec.Run && exec.Error==''">&#10003;</span>
           <span ng-show="exec.Run && exec.Error!=''">&#10007;</span>
-          {{ exec.Description }}
+          {{ exec.Description }}<br>
           <em>{{ exec.Error }}</em>
         </p>
       </div>
