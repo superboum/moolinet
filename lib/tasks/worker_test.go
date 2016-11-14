@@ -31,7 +31,7 @@ func TestWorker(t *testing.T) {
 		t.Log(progress.Output)
 	}
 
-	if j.Executions[0].Error != nil {
+	if j.Executions[0].Error != "" {
 		t.Error("Should not be errored", j.Executions[0].Error)
 	}
 	if !strings.Contains(j.Executions[0].Output, "127.0.0.1") {

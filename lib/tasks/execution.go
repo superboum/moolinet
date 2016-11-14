@@ -11,7 +11,7 @@ type Execution struct {
 	Network     bool
 	Timeout     int
 	Output      string
-	Error       error
+	Error       string
 	Run         bool
 }
 
@@ -39,6 +39,7 @@ func (e *Execution) DeepCopy() Execution {
 	f.Timeout = e.Timeout
 	f.Output = e.Output
 	f.Error = e.Error
+	f.Run = e.Run
 
 	return f
 }

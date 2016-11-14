@@ -6,7 +6,7 @@ import (
 
 func TestGenerateExecution(t *testing.T) {
 	jt := JobTemplate{[]Execution{Execution{Command: []string{"ls", "[FOLDER]"}}}}
-	exec := jt.GenerateExecution(map[string]string{"[FOLDER]": "hello"})
+	exec := jt.GenerateExecution(map[string]string{"[FOLDER]": "hello", "[TEST]": "hallo"})
 	if exec[0].Command[1] != "hello" {
 		t.Error("Templating failed: expecting hello but get", exec[0].Command[1])
 	}

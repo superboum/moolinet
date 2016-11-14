@@ -24,10 +24,17 @@
         <p style="text-align: center">{{ status_list[job.Status] }}</p>
       </div>
       <div ng-show="job != null && job.Status == 3">
-        <h3>Bien joué !</h3>
+        <p style="text-align: center; font-size: 70px;">&#10003;</p>
+        <p style="text-align: center">VALIDATED</p>
       </div>
       <div ng-show="job != null && job.Status == 4">
-        <h3>Nope</h3>
+        <p style="text-align: center; font-size: 70px;">&#10007;</p>
+        <p style="text-align: center">ERROR</p>
+      </div>
+
+      <div ng-repeat="exec in job.Executions">
+        <p>COUCOU</p>
+        <pre>{{ exec }}</pre>
       </div>
 
       <div ng-show="job == null">

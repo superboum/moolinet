@@ -18,7 +18,7 @@ func TestJudge(t *testing.T) {
 	}
 
 	for progress := range job.Progress {
-		if progress.Error != nil {
+		if progress.Error != "" {
 			t.Error("Command should not fail", progress.Error, progress.Output)
 			return
 		}

@@ -19,7 +19,7 @@ func TestNewJob(t *testing.T) {
 		return
 	}
 
-	if j.Executions[0].Error != nil {
+	if j.Executions[0].Error != "" {
 		t.Error("This error should not occur", j.Executions[0].Error)
 	}
 

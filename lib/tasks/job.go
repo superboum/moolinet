@@ -51,16 +51,20 @@ func (j *Job) Process() error {
 	for index, exec := range j.Executions {
 		out, err := sandbox.Run(exec.Command, exec.Timeout, exec.Network)
 		j.Executions[index].Output = out
-		j.Executions[index].Error = err
 		j.Executions[index].Run = true
+		if err != nil {
+			j.Executions[index].Error = err.Error()
+		}
 
 		j.Progress <- j.Executions[index]
 		if err != nil {
 			j.Status = FAILED
-			break
 		}
 	}
 	close(j.Progress)
-	j.Status = SUCCESS
+
+	if j.Status == IN_PROGRESS {
+		j.Status = SUCCESS
+	}
 	return nil
 }
