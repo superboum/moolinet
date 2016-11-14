@@ -9,7 +9,8 @@ import (
 )
 
 type JobController struct {
-	judge *judge.Judge
+	judge   *judge.Judge
+	baseUrl string
 }
 
 type postJob struct {
@@ -17,16 +18,18 @@ type postJob struct {
 	Vars map[string]string
 }
 
-func NewJobController(j *judge.Judge) *JobController {
+func NewJobController(j *judge.Judge, baseUrl string) *JobController {
 	jc := new(JobController)
 	jc.judge = j
+	jc.baseUrl = baseUrl
 	return jc
 }
 
 func (jc *JobController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
 		jc.createJob(res, req)
-	} else {
+	} else if len(req.URL.Path[len(jc.baseUrl):]) > 0 {
+		jc.getJobStatus(res, req)
 	}
 }
 
@@ -54,4 +57,15 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 }
 
 func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request) {
+	encoder := json.NewEncoder(res)
+	UUID := req.URL.Path[len(jc.baseUrl):]
+	job, err := jc.judge.GetJob(UUID)
+
+	if err != nil {
+		res.WriteHeader(404)
+		encoder.Encode(APIError{"The UUID was not found", "Check that your job exists"})
+		return
+	}
+
+	encoder.Encode(job)
 }

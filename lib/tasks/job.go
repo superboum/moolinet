@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	READY         = iota
+	IN_QUEUE      = iota
 	PROVISIONNING = iota
 	IN_PROGRESS   = iota
-	DONE          = iota
+	SUCCESS       = iota
 	FAILED        = iota
 )
 
@@ -33,29 +33,34 @@ func NewJob(image string, template JobTemplate, variables map[string]string) (*J
 	j.Image = image
 	j.Executions = template.GenerateExecution(variables)
 	j.Progress = make(chan Execution, 100)
+	j.Status = IN_QUEUE
 
 	return j, nil
 }
 
 func (j *Job) Process() error {
-	// Run the task
+	j.Status = PROVISIONNING
 	sandbox, err := sandbox.NewDockerSandbox(j.Image)
 	if err != nil {
+		j.Status = FAILED
 		return err
 	}
 	defer sandbox.Destroy()
 
+	j.Status = IN_PROGRESS
 	for index, exec := range j.Executions {
 		out, err := sandbox.Run(exec.Command, exec.Timeout, exec.Network)
 		j.Executions[index].Output = out
 		j.Executions[index].Error = err
+		j.Executions[index].Run = true
 
 		j.Progress <- j.Executions[index]
 		if err != nil {
+			j.Status = FAILED
 			break
 		}
 	}
 	close(j.Progress)
-
+	j.Status = SUCCESS
 	return nil
 }

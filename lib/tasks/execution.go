@@ -6,11 +6,13 @@ import (
 )
 
 type Execution struct {
-	Command []string
-	Network bool
-	Timeout int
-	Output  string
-	Error   error
+	Description string
+	Command     []string
+	Network     bool
+	Timeout     int
+	Output      string
+	Error       error
+	Run         bool
 }
 
 func NewExecutionFromJSON(reader io.Reader) (*Execution, error) {

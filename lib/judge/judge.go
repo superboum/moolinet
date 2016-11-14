@@ -10,6 +10,7 @@ import (
 type Judge struct {
 	Queue            *tasks.JobQueue
 	Worker           *tasks.Worker
+	ActiveJobs       map[string]*tasks.Job
 	Challenges       map[string]*Challenge
 	PublicChallenges []*Challenge
 	Config           *tools.Config
@@ -22,6 +23,7 @@ func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j.Worker = tasks.NewWorker(j.Queue)
 	j.Config = conf
 	j.Warnings = make([]error, 0)
+	j.ActiveJobs = make(map[string]*tasks.Job)
 
 	err := j.ReloadChallenge()
 	if err != nil {
@@ -57,6 +59,16 @@ func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) 
 		return nil, err
 	}
 	j.Queue.Add(job)
+	j.ActiveJobs[job.UUID] = job
+
+	return job, nil
+}
+
+func (j *Judge) GetJob(UUID string) (*tasks.Job, error) {
+	job, ok := j.ActiveJobs[UUID]
+	if !ok {
+		return nil, errors.New("This job does not exist")
+	}
 
 	return job, nil
 }

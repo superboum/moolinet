@@ -17,7 +17,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/challenge/", web.NewChallengeController(judge))
-	mux.Handle("/api/job", web.NewJobController(judge))
+	mux.Handle("/api/job/", web.NewJobController(judge, "/api/job/"))
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
 	log.Println("Listen on 8080")

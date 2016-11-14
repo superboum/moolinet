@@ -13,11 +13,30 @@
   <div class="pure-u-1 pure-u-md-2-5" style="background-color: #eee; height: 100%;">
     <div class="content">
       <h1>validation</h1>
-      <p>
-        <textarea ng-model="code" style="display:block; width: 100%; height: 600px;">
-        </textarea>
-      </p>
-      <button class="pure-button pure-button-primary" ng-click="submitAnswer()">lancer les tests</button>
+      <div ng-show="job != null && job.Status < 3">
+        <div class="spinner">
+          <div class="rect1"></div>
+          <div class="rect2"></div>
+          <div class="rect3"></div>
+          <div class="rect4"></div>
+          <div class="rect5"></div>
+        </div>
+        <p style="text-align: center">{{ status_list[job.Status] }}</p>
+      </div>
+      <div ng-show="job != null && job.Status == 3">
+        <h3>Bien joué !</h3>
+      </div>
+      <div ng-show="job != null && job.Status == 4">
+        <h3>Nope</h3>
+      </div>
+
+      <div ng-show="job == null">
+        <p>
+          <textarea ng-model="code" style="display:block; width: 100%; height: 600px;">
+          </textarea>
+        </p>
+        <button class="pure-button pure-button-primary" ng-click="submitAnswer()">lancer les tests</button>
+      </div>
     </div>
   </div>
 </div>

@@ -1,4 +1,7 @@
 angular.module('moolinet', ['ngResource', 'ngRoute'])
+  .config(function($resourceProvider) {
+      $resourceProvider.defaults.stripTrailingSlashes = false;
+  })
 
   .config(['$routeProvider', function($routeProvider) {
     $routeProvider
@@ -33,9 +36,10 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
   }])
 
   .factory('Job', ['$resource', function($resource) {
-    var Job = $resource('/api/job/:slug', {slug:'@id'});
+    var Job = $resource('/api/job/:uuid', {uuid:'@id'});
     return {
-      submit: function(slug, vars, cb) { Job.save({Slug: slug, Vars: vars}, cb); }
+      submit: function(slug, vars, cb) { Job.save({Slug: slug, Vars: vars}, cb); },
+      get: function(UUID, cb) { return Job.get({uuid: UUID}, cb); }
     };
   }])
 
@@ -49,7 +53,10 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
     Challenge.load(function() { this.list = Challenge.getList(); }.bind(this));
   }])
 
-  .controller('ChallengeViewController', ['Challenge', 'Job', '$routeParams', "$scope", function(Challenge, Job, $routeParams, $scope) {
+  .controller('ChallengeViewController', ['Challenge', 'Job', '$routeParams', "$scope", "$interval", function(Challenge, Job, $routeParams, $scope, $interval) {
+    $scope.status_list = ["WAITING IN QUEUE", "PROVISIONNING", "IN PROGRESS", "SUCCESS", "FAILED"];
+    $scope.job = null;
+
     Challenge.load(function() {
       this.selected = Challenge.getChallenge($routeParams.slug);
       if (this.selected) { this.selected.Body = marked(this.selected.Body); }
@@ -57,8 +64,16 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
 
     $scope.submitAnswer = function() {
       Job.submit($routeParams.slug, {"[CODE]": $scope.code}, function(res) {
-        console.log(res);
+        $scope.job = res;
+        finished = $interval(function() {
+          Job.get(res.UUID, function(job) {
+            $scope.job = job;
+            if ($scope.job.Status >= 3) {
+              $interval.cancel(finished);
+            }
+          });
+        }, 1000);
       });
-    }
+    };
   }])
 ;
