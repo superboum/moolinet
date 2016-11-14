@@ -7,21 +7,31 @@
   "Template": {
     "Executions": [
       {
+        "Description": "Display the content of the folder",
         "Command": ["ls", "-lah"],
         "Network": false,
         "Timeout": 30
       },
       {
+        "Description": "Display the content of /etc/hosts",
         "Command": ["cat", "/etc/hosts"],
         "Network": false,
         "Timeout": 30
       },
       {
+        "Description": "Sleep 2",
+        "Command": ["sleep", "2"],
+        "Network": false,
+        "Timeout": 30
+      },
+      {
+        "Description": "Echo a variable",
         "Command": ["echo", "[GIT-REPO]"],
         "Network": false,
         "Timeout": 30
       },
       {
+        "Description": "Display the current kernel version",
         "Command": ["uname", "-a"],
         "Network": false,
         "Timeout": 30

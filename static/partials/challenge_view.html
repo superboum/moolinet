@@ -1,5 +1,5 @@
 <div class="pure-g" ng-controller="ChallengeViewController as chal" style="height:100%">
-  <div class="pure-u-1 pure-u-md-3-5">
+  <div class="pure-u-1 pure-u-md-3-5" style="height:100%; overflow: auto">
     <div class="content">
       <h1>{{ chal.selected.Title }}</h1>
       <h3>{{ chal.selected.Description }}</h3>
@@ -12,8 +12,8 @@
   </div>
   <div class="pure-u-1 pure-u-md-2-5" style="background-color: #eee; height: 100%;">
     <div class="content">
-      <h1>validation</h1>
-      <div ng-show="job != null && job.Status < 3">
+      <h1>submission</h1>
+      <div class="progress" ng-show="job != null && job.Status < 3">
         <div class="spinner">
           <div class="rect1"></div>
           <div class="rect2"></div>
@@ -21,20 +21,26 @@
           <div class="rect4"></div>
           <div class="rect5"></div>
         </div>
-        <p style="text-align: center">{{ status_list[job.Status] }}</p>
+        <p class="text">{{ status_list[job.Status] }}</p>
       </div>
-      <div ng-show="job != null && job.Status == 3">
-        <p style="text-align: center; font-size: 70px;">&#10003;</p>
-        <p style="text-align: center">VALIDATED</p>
+      <div class="progress" ng-show="job != null && job.Status == 3">
+        <p class="icon">&#10003;</p>
+        <p class="text">VALIDATED</p>
       </div>
-      <div ng-show="job != null && job.Status == 4">
-        <p style="text-align: center; font-size: 70px;">&#10007;</p>
-        <p style="text-align: center">ERROR</p>
+      <div class="progress" ng-show="job != null && job.Status == 4">
+        <p class="icon">&#10007;</p>
+        <p class="text">ERROR</p>
       </div>
 
       <div ng-repeat="exec in job.Executions">
-        <p>COUCOU</p>
-        <pre>{{ exec }}</pre>
+        <hr>
+        <p>
+          <span ng-show="!exec.Run">&#8987;</span>
+          <span ng-show="exec.Run && exec.Error==''">&#10003;</span>
+          <span ng-show="exec.Run && exec.Error!=''">&#10007;</span>
+          {{ exec.Description }}
+          <em>{{ exec.Error }}</em>
+        </p>
       </div>
 
       <div ng-show="job == null">
@@ -42,7 +48,7 @@
           <textarea ng-model="code" style="display:block; width: 100%; height: 600px;">
           </textarea>
         </p>
-        <button class="pure-button pure-button-primary" ng-click="submitAnswer()">lancer les tests</button>
+        <button class="pure-button pure-button-primary" ng-click="submitAnswer()">validate your answer</button>
       </div>
     </div>
   </div>

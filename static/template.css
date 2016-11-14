@@ -36,3 +36,11 @@ html, body, .layout, .full-height {
   padding: 10px 20px;
 }
 
+.progress > .icon {
+  text-align: center;
+  font-size: 70px;
+}
+
+.progress > .text {
+  text-align: center;
+}
