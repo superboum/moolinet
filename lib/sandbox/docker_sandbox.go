@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
+	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -115,8 +117,35 @@ func (s *DockerSandbox) createContainer() error {
 	return err
 }
 
+func (s *DockerSandbox) checkImage() bool {
+	summary, err := s.client.ImageList(
+		context.Background(),
+		types.ImageListOptions{},
+	)
+
+	if err != nil {
+		s.logs += "Unable to query the image list for " + s.image + "\n"
+		return false
+	}
+
+	for _, elem := range summary {
+		for _, repoTag := range elem.RepoTags {
+			repo := strings.Split(repoTag, ":")[0]
+			if s.image == repo || s.image == repoTag {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 //BUG(#1) Logs are not checked for error when pulling an image
 func (s *DockerSandbox) downloadImage() error {
+	if s.checkImage() {
+		return nil
+	}
+
+	log.Println("Downloading the image " + s.image)
 	reader, err := s.client.ImageCreate(
 		context.Background(),
 		s.image,
