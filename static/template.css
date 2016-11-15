@@ -49,3 +49,11 @@ pre {
 .progress > .text {
   text-align: center;
 }
+
+.code {
+  display: block;
+  width: 100%;
+  height: 600px;
+  font-size: 12px;
+  white-space: pre;
+}
