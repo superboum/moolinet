@@ -26,6 +26,6 @@ go test -v github.com/superboum/moolinet/... # (you should be in the docker grou
 ## Images
 
 ```
-sudo docker build -t superboum/moolinet-golang:v1 ./images -f ./images/golang.dockerfile
+bash ./images/make.sh
 ```
 
