@@ -5,16 +5,19 @@ import (
 	"io"
 )
 
+// Execution contains the data related to a particular execution (command) to be
+// run in a sandbox.
 type Execution struct {
 	Description string
 	Command     []string
-	Network     bool
 	Timeout     int
 	Output      string
 	Error       string
 	Run         bool
+	Network     bool
 }
 
+// NewExecutionFromJSON unmarshals an Execution from JSON input stream.
 func NewExecutionFromJSON(reader io.Reader) (*Execution, error) {
 	decoder := json.NewDecoder(reader)
 
@@ -29,6 +32,7 @@ func NewExecutionFromJSON(reader io.Reader) (*Execution, error) {
 	return exec, nil
 }
 
+// DeepCopy returns a safe copy of the current Execution.
 func (e *Execution) DeepCopy() Execution {
 	f := Execution{}
 

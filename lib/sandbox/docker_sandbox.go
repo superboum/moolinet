@@ -15,18 +15,21 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// DockerSandbox is the Docker implementation of the Sandbox interface.
 type DockerSandbox struct {
 	client      *client.Client
 	image       string
 	logs        string
-	containerId string
+	containerID string
 }
 
-type commandOutput struct {
+type dockerCommandOutput struct {
 	output string
 	err    error
 }
 
+// NewDockerSandbox returns a new DockerSandbox from an image name.
+//
 // We should use a design pattern such as Fabric or Builder, or somethng similar
 // In order to split the creation logic and the command logic.
 // BUG(#2) We should not try to download the image every time we start a new container. We should check if it exists locally.
@@ -59,10 +62,11 @@ func NewDockerSandbox(image string) (*DockerSandbox, error) {
 	return s, nil
 }
 
+// Destroy removes the current container.
 func (s *DockerSandbox) Destroy() {
 	err := s.client.ContainerRemove(
 		context.Background(),
-		s.containerId,
+		s.containerID,
 		types.ContainerRemoveOptions{
 			Force: true,
 		},
@@ -73,31 +77,32 @@ func (s *DockerSandbox) Destroy() {
 	}
 }
 
-// TODO: Add connection support
-func (s *DockerSandbox) Run(command []string, timeout int, connection bool) (string, error) {
-	s.setConnectivity(connection)
+// Run runs the provided command in the Docker Sandbox.
+func (s *DockerSandbox) Run(command []string, config Config) (string, error) {
+	s.setConnectivity(config.Network)
 
-	execId, err := s.prepareCommand(command)
+	execID, err := s.prepareCommand(command)
 	if err != nil {
 		return "", err
 	}
 
-	commandChannel := make(chan commandOutput, 1)
-	go s.launchCommand(execId, commandChannel)
+	commandChannel := make(chan dockerCommandOutput, 1)
+	go s.launchCommand(execID, commandChannel)
 
 	select {
 	case res := <-commandChannel:
 		return res.output, res.err
-	case <-time.After(time.Second * time.Duration(timeout)):
+	case <-time.After(config.Timeout):
 		return "", errors.New("The command has timeout")
 	}
 }
 
+// GetLogs returns currently saved logs.
 func (s *DockerSandbox) GetLogs() string {
 	return s.logs
 }
 
-// We will create a container
+// We will create a container.
 // This part is a bit hacky because we will run a
 // command that hangs but do nothing.
 // It will prevent the container from stopping
@@ -109,11 +114,13 @@ func (s *DockerSandbox) createContainer() error {
 			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 86400; done"},
 			Image: s.image,
 		}),
-		&(container.HostConfig{}),
+		&(container.HostConfig{
+			AutoRemove: true,
+		}),
 		&(network.NetworkingConfig{}),
 		"") // We don't want a name for our container
 
-	s.containerId = container.ID
+	s.containerID = container.ID
 	return err
 }
 
@@ -171,7 +178,7 @@ func (s *DockerSandbox) downloadImage() error {
 func (s *DockerSandbox) startContainer() error {
 	err := s.client.ContainerStart(
 		context.Background(),
-		s.containerId,
+		s.containerID,
 		types.ContainerStartOptions{},
 	)
 	return err
@@ -180,7 +187,7 @@ func (s *DockerSandbox) startContainer() error {
 func (s *DockerSandbox) prepareCommand(command []string) (string, error) {
 	response, err := s.client.ContainerExecCreate(
 		context.Background(),
-		s.containerId,
+		s.containerID,
 		types.ExecConfig{
 			Privileged:   false,
 			Tty:          true,
@@ -196,14 +203,14 @@ func (s *DockerSandbox) prepareCommand(command []string) (string, error) {
 	return response.ID, nil
 }
 
-func (s *DockerSandbox) launchCommand(execId string, commandChannel chan commandOutput) {
+func (s *DockerSandbox) launchCommand(execID string, commandChannel chan dockerCommandOutput) {
 
 	// We must specify the following ExecConfig
 	// Otherwhise the result is corrupted
 	// I don't know why...
 	session, err := s.client.ContainerExecAttach(
 		context.Background(),
-		execId,
+		execID,
 		types.ExecConfig{
 			Tty:          true,
 			AttachStdout: true,
@@ -211,16 +218,16 @@ func (s *DockerSandbox) launchCommand(execId string, commandChannel chan command
 		},
 	)
 
-	defer session.Close()
 	if err != nil {
-		commandChannel <- commandOutput{"", err}
+		commandChannel <- dockerCommandOutput{"", err}
 		return
 	}
+	defer session.Close()
 
 	bytesRead, err := ioutil.ReadAll(session.Reader)
 	if err != nil {
 		s.logs += "Unable to read logs while running the command ?? \n"
-		commandChannel <- commandOutput{"", err}
+		commandChannel <- dockerCommandOutput{"", err}
 		return
 	}
 
@@ -229,14 +236,14 @@ func (s *DockerSandbox) launchCommand(execId string, commandChannel chan command
 
 	inspection, err := s.client.ContainerExecInspect(
 		context.Background(),
-		execId,
+		execID,
 	)
 
 	if err == nil && inspection.ExitCode != 0 {
 		err = errors.New("Terminated with exit code " + strconv.Itoa(inspection.ExitCode))
 	}
 
-	commandChannel <- commandOutput{output, err}
+	commandChannel <- dockerCommandOutput{output, err}
 }
 
 func (s *DockerSandbox) setConnectivity(connection bool) {
@@ -244,14 +251,14 @@ func (s *DockerSandbox) setConnectivity(connection bool) {
 		s.client.NetworkConnect(
 			context.Background(),
 			"bridge",
-			s.containerId,
+			s.containerID,
 			&network.EndpointSettings{},
 		)
 	} else {
 		s.client.NetworkDisconnect(
 			context.Background(),
 			"bridge",
-			s.containerId,
+			s.containerID,
 			true,
 		)
 	}

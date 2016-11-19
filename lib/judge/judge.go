@@ -7,6 +7,8 @@ import (
 	"github.com/superboum/moolinet/lib/tools"
 )
 
+// Judge is the entrypoint of this package.
+// It stores every component of the judging system (workers, challenges...).
 type Judge struct {
 	Queue            *tasks.JobQueue
 	Worker           *tasks.Worker
@@ -17,6 +19,7 @@ type Judge struct {
 	Warnings         []error
 }
 
+// NewSimpleJudge returns a Judge from configuration.
 func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j := new(Judge)
 	j.Queue = tasks.NewJobQueue()
@@ -34,9 +37,10 @@ func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	return j, nil
 }
 
+// ReloadChallenge reloads challenges from disk.
 func (j *Judge) ReloadChallenge() error {
 	// Load challenges
-	chal, err, warn := LoadChallengesFromPath(j.Config.ChallengesPath)
+	chal, warn, err := LoadChallengesFromPath(j.Config.ChallengesPath)
 	if err != nil {
 		return err
 	}
@@ -49,6 +53,7 @@ func (j *Judge) ReloadChallenge() error {
 
 }
 
+// Submit submits the code to the queue, returning the waiting job.
 func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) {
 	chal, ok := j.Challenges[slug]
 	if !ok {
@@ -64,6 +69,8 @@ func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) 
 	return job, nil
 }
 
+// GetJob returns the Job with the provided UUID.
+// It returns an error is the asked Job is no longer Active.
 func (j *Judge) GetJob(UUID string) (*tasks.Job, error) {
 	job, ok := j.ActiveJobs[UUID]
 	if !ok {

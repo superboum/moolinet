@@ -8,9 +8,10 @@ import (
 	"github.com/superboum/moolinet/lib/judge"
 )
 
+// JobController is a controller used to manage Jobs.
 type JobController struct {
 	judge   *judge.Judge
-	baseUrl string
+	baseURL string
 }
 
 type postJob struct {
@@ -18,17 +19,25 @@ type postJob struct {
 	Vars map[string]string
 }
 
-func NewJobController(j *judge.Judge, baseUrl string) *JobController {
+// NewJobController returns a new JobController from a Judge and a baseURL.
+// The baseURL is used to clean URLs when generating job IDs.
+func NewJobController(j *judge.Judge, baseURL string) *JobController {
 	jc := new(JobController)
 	jc.judge = j
-	jc.baseUrl = baseUrl
+	jc.baseURL = baseURL
 	return jc
 }
 
+// ServeHTTP is a router for the Job Controller:
+//
+// - If the method is POST, it creates a new Job ;
+// - Otherwise, if the URL is not malformed, it returns the status of a Job
+//
+// The expected URL is {baseURL}{jobUUID}.
 func (jc *JobController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
 		jc.createJob(res, req)
-	} else if len(req.URL.Path[len(jc.baseUrl):]) > 0 {
+	} else if len(req.URL.Path[len(jc.baseURL):]) > 0 {
 		jc.getJobStatus(res, req)
 	}
 }
@@ -58,7 +67,7 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 
 func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request) {
 	encoder := json.NewEncoder(res)
-	UUID := req.URL.Path[len(jc.baseUrl):]
+	UUID := req.URL.Path[len(jc.baseURL):]
 	job, err := jc.judge.GetJob(UUID)
 
 	if err != nil {

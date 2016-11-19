@@ -2,6 +2,7 @@ package sandbox
 
 import (
 	"testing"
+	"time"
 )
 
 func TestDockerSandbox(t *testing.T) {
@@ -13,7 +14,11 @@ func TestDockerSandbox(t *testing.T) {
 	}
 	defer s.Destroy()
 
-	output, err := s.Run([]string{"go", "get", "-v", "-d", "github.com/superboum/atuin/..."}, 120, true)
+	c := Config{
+		Timeout: 2 * time.Minute,
+		Network: true,
+	}
+	output, err := s.Run([]string{"go", "get", "-v", "-d", "github.com/superboum/atuin/..."}, c)
 	t.Log("output: " + output)
 	if err != nil {
 		t.Error("Unexpected error", err)
@@ -24,7 +29,8 @@ func TestDockerSandbox(t *testing.T) {
 		return
 	}
 
-	output, err = s.Run([]string{"go", "get", "-v", "-d", "github.com/superboum/moolinet/..."}, 120, false)
+	c.Network = false
+	output, err = s.Run([]string{"go", "get", "-v", "-d", "github.com/superboum/moolinet/..."}, c)
 	t.Log("output: " + output)
 	if err == nil {
 		t.Error("Should throw an error")
@@ -35,7 +41,7 @@ func TestDockerSandbox(t *testing.T) {
 		return
 	}
 
-	output, err = s.Run([]string{"go", "install", "-v", "github.com/superboum/atuin/..."}, 120, false)
+	output, err = s.Run([]string{"go", "install", "-v", "github.com/superboum/atuin/..."}, c)
 	t.Log("output: " + output)
 	if err != nil {
 		t.Error("Unexpected error", err)
@@ -46,7 +52,8 @@ func TestDockerSandbox(t *testing.T) {
 		return
 	}
 
-	output, err = s.Run([]string{"atuin-front"}, 30, false)
+	c.Timeout = 30 * time.Second
+	output, err = s.Run([]string{"atuin-front"}, c)
 	t.Log("output: " + output)
 	if err == nil {
 		t.Error("Should throw a timeout error")

@@ -11,7 +11,7 @@ func TestNewExecutionFromJSON(t *testing.T) {
 		t.Error("There was an error while opening the file", err)
 		return
 	}
-	exec, err := NewExecutionFromJSON(reader)
+	exec, _ := NewExecutionFromJSON(reader)
 	if exec.Command[0] != "ls" {
 		t.Error("There was an error in JSON parsing")
 		return

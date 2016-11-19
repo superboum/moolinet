@@ -4,12 +4,13 @@ import (
 	"strings"
 )
 
+// JobTemplate holds generic executions.
 type JobTemplate struct {
 	Executions []Execution
 }
 
-// Basic templating function
-// Replace token (eg: [URL]) by a value (eg: http://example.com)
+// GenerateExecution is a basic templating function:
+// it replaces tokens (eg: [URL]) by a value (eg: http://example.com)
 func (jt *JobTemplate) GenerateExecution(variables map[string]string) []Execution {
 	variables["[_ABOUT]"] = "moolinet"
 	templated := make([]Execution, len(jt.Executions))

@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// newUUID generates a random UUID according to RFC 4122
+// NewUUID generates a random UUID according to RFC 4122
 // Source: https://play.golang.org/p/4FkNSiUDMg
 func NewUUID() (string, error) {
 	uuid := make([]byte, 16)

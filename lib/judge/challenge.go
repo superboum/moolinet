@@ -11,6 +11,7 @@ import (
 	"github.com/superboum/moolinet/lib/tasks"
 )
 
+// Challenge holds the data related to a particular challenge.
 type Challenge struct {
 	Slug        string
 	Title       string
@@ -20,6 +21,7 @@ type Challenge struct {
 	Template    tasks.JobTemplate `json:",omitempty"`
 }
 
+// NewChallengeFromJSON unmarshals a Challenge from a JSON input stream.
 func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {
 	decoder := json.NewDecoder(reader)
 
@@ -32,6 +34,7 @@ func NewChallengeFromJSON(reader io.Reader) (*Challenge, error) {
 	return chal, nil
 }
 
+// GetPublicChallenge returns a copy of a Challenge with secret information removed.
 func (c *Challenge) GetPublicChallenge() *Challenge {
 	newChal := new(Challenge)
 	newChal.Slug = c.Slug
@@ -43,13 +46,12 @@ func (c *Challenge) GetPublicChallenge() *Challenge {
 }
 
 // LoadChallengesFromPath returns a map of challenge, a potential blocking error and a list of warning caused by unreadable challenges
-func LoadChallengesFromPath(challengePath string) (map[string]*Challenge, error, []error) {
-	res := make(map[string]*Challenge)
-	loadErrors := make([]error, 0)
+func LoadChallengesFromPath(challengePath string) (res map[string]*Challenge, loadErrors []error, err error) {
+	res = make(map[string]*Challenge)
 
 	files, err := ioutil.ReadDir(challengePath)
 	if err != nil {
-		return nil, err, nil
+		return nil, nil, err
 	}
 
 	for _, file := range files {
@@ -72,9 +74,10 @@ func LoadChallengesFromPath(challengePath string) (map[string]*Challenge, error,
 		}
 	}
 
-	return res, nil, loadErrors
+	return res, loadErrors, nil
 }
 
+// GeneratePublicChallenges returns a slice of public Challenges from a map of private Challenges.
 func GeneratePublicChallenges(challenges map[string]*Challenge) []*Challenge {
 	res := make([]*Challenge, 0, len(challenges))
 
