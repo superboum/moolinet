@@ -19,14 +19,14 @@ const (
 // Job is the structure representing a set of executions to be executed in a sandbox.
 type Job struct {
 	UUID       string
-	Image      string
+	Config     interface{}
 	Executions []Execution
 	Status     int
 	Progress   chan Execution `json:"-"`
 }
 
 // NewJob creates a new Job from standard parameters.
-func NewJob(image string, template JobTemplate, variables map[string]string) (*Job, error) {
+func NewJob(config interface{}, template JobTemplate, variables map[string]string) (*Job, error) {
 	j := new(Job)
 
 	uuid, err := tools.NewUUID()
@@ -35,7 +35,7 @@ func NewJob(image string, template JobTemplate, variables map[string]string) (*J
 	}
 
 	j.UUID = uuid
-	j.Image = image
+	j.Config = config
 	j.Executions = template.GenerateExecution(variables)
 	j.Progress = make(chan Execution, 100)
 	j.Status = JobStatusInQueue
@@ -46,7 +46,7 @@ func NewJob(image string, template JobTemplate, variables map[string]string) (*J
 // Process starts the Job, running every execution.
 func (j *Job) Process() error {
 	j.Status = JobStatusProvisionning
-	s, err := sandbox.NewDockerSandbox(j.Image)
+	s, err := sandbox.NewDockerSandbox(j.Config.(sandbox.DockerSandboxConfig))
 	if err != nil {
 		j.Status = JobStatusFailed
 		return err

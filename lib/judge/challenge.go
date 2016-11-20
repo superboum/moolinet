@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/superboum/moolinet/lib/sandbox"
 	"github.com/superboum/moolinet/lib/tasks"
 )
 
@@ -17,8 +18,8 @@ type Challenge struct {
 	Title       string
 	Description string
 	Body        string
-	Image       string            `json:",omitempty"`
-	Template    tasks.JobTemplate `json:",omitempty"`
+	Docker      sandbox.DockerSandboxConfig `json:",omitempty"`
+	Template    tasks.JobTemplate           `json:",omitempty"`
 }
 
 // NewChallengeFromJSON unmarshals a Challenge from a JSON input stream.

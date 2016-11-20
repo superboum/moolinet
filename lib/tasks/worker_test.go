@@ -3,6 +3,8 @@ package tasks
 import (
 	"strings"
 	"testing"
+
+	"github.com/superboum/moolinet/lib/sandbox"
 )
 
 func TestWorker(t *testing.T) {
@@ -18,7 +20,7 @@ func TestWorker(t *testing.T) {
 		Timeout: 120}}}
 	vars := map[string]string{
 		"[PATH]": "/etc/hosts"}
-	j, err := NewJob("superboum/moolinet-golang", jt, vars)
+	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, vars)
 	if err != nil {
 		t.Error("Couldn't create a job", err)
 		return

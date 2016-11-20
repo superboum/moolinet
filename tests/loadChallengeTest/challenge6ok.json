@@ -3,7 +3,11 @@
   "Title": "#06 Hello World in Go",
   "Description": "A basic application in go",
   "Body": "### Forewords\n\nWe'll suppose that you have go installed on your machine.\nYou can check by typing :\n\n```bash\ngo version\n```\n\nAt the same time, you'll check that your version is not too old.\nFor example, I'm currently running `go 1.7.3`. If you're runngin go `1.6`, it should be ok, don't worry :D \n\n### How to code with go ?\n\nIt could seems weird to you, but go developpers don't have an IDE. So, you'll need a good text editor \n(wordpad.exe is definetely a no go !). You can use vim, atom, sublime text or even emacs if you are an octopus.\n\nSo let's start our first go application !\n\n```go\npackage main\n\nfunc main() {\n    // your code here\n}\n```\n\n### Run and compile it\n\nNow I'm sure that you want to launch your amazing application.\nJust type the following command :\n\n```go\ngo run my-file.go\n```\n\nTo build it, and share it with everyone juste run :\n\n```go\ngo build my-file.go\n```\n\n### Writing on stdout\n\nFirst of all, we'll need a package named `fmt`.\nTo import a package, we'll use the following syntax (one package on each line) :\n\n```go\npackage main\n\nimport (\n  \"fmt\n)\n// ...\n```\n\nFinally, to print something on stdout, you'll use the call `fmt.Println(\"my text\")`\nie the function `Println` from the package `fmt`\n\n### The exercice\n\nPrint the string `hello world` on stdout with a new line at the end (automaticaly put by `fmt.Println()`)\n",
-  "Image": "superboum/moolinet-golang",
+  "Docker": {
+    "Image": "superboum/moolinet-golang",
+    "Memory": 52428800,
+    "Procs": 100
+  },
   "Template": {
     "Executions": [
       {
