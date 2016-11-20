@@ -10,6 +10,7 @@ import (
 type Execution struct {
 	Description string
 	Command     []string
+	Expected    string
 	Timeout     int
 	Output      string
 	Error       string
@@ -33,8 +34,8 @@ func NewExecutionFromJSON(reader io.Reader) (*Execution, error) {
 }
 
 // DeepCopy returns a safe copy of the current Execution.
-func (e *Execution) DeepCopy() Execution {
-	f := Execution{}
+func (e *Execution) DeepCopy() *Execution {
+	f := &Execution{}
 
 	f.Command = make([]string, len(e.Command))
 	copy(f.Command, e.Command)
@@ -43,6 +44,7 @@ func (e *Execution) DeepCopy() Execution {
 	f.Network = e.Network
 	f.Timeout = e.Timeout
 	f.Output = e.Output
+	f.Expected = e.Expected
 	f.Error = e.Error
 	f.Run = e.Run
 

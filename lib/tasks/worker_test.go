@@ -14,7 +14,7 @@ func TestWorker(t *testing.T) {
 	w.Launch()
 
 	// Job template + creation
-	jt := JobTemplate{[]Execution{Execution{
+	jt := JobTemplate{[]*Execution{&Execution{
 		Command: []string{"cat", "[PATH]"},
 		Network: true,
 		Timeout: 120}}}

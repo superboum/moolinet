@@ -26,7 +26,8 @@
         "Description": "Run the code",
         "Command": ["go", "run", "./main.go"],
         "Network": false,
-        "Timeout": 5
+        "Timeout": 5,
+        "Expected": "^hello world"
       }
     ]
   }
