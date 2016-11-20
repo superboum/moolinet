@@ -45,6 +45,7 @@
           <span ng-show="exec.Run && exec.Error!=''">&#10007;</span>
           {{ exec.Description }}<br>
           <em>{{ exec.Error }}</em>
+          <textarea class="output" ng-show="exec.Output" disabled>{{ exec.Output }}</textarea>
         </p>
       </div>
 

@@ -20,7 +20,8 @@
         "Description": "Check the syntax with gofmt",
         "Command": ["gofmt", "./main.go"],
         "Network": false,
-        "Timeout": 5
+        "Timeout": 5,
+        "Public": true
       },
       {
         "Description": "Run the code",

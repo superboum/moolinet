@@ -19,6 +19,19 @@ type postJob struct {
 	Vars map[string]string
 }
 
+type getJobExecution struct {
+	Description string
+	Output      string `json:",omitempty"`
+	Error       string
+	Run         bool
+}
+
+type getJob struct {
+	UUID       string
+	Status     int
+	Executions []getJobExecution
+}
+
 // NewJobController returns a new JobController from a Judge and a baseURL.
 // The baseURL is used to clean URLs when generating job IDs.
 func NewJobController(j *judge.Judge, baseURL string) *JobController {
@@ -69,12 +82,25 @@ func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request
 	encoder := json.NewEncoder(res)
 	UUID := req.URL.Path[len(jc.baseURL):]
 	job, err := jc.judge.GetJob(UUID)
-
 	if err != nil {
 		res.WriteHeader(404)
 		encoder.Encode(APIError{"The UUID was not found", "Check that your job exists"})
 		return
 	}
 
-	encoder.Encode(job)
+	pjob := getJob{
+		UUID:       job.UUID,
+		Status:     job.Status,
+		Executions: make([]getJobExecution, len(job.Executions)),
+	}
+	for i, e := range job.Executions {
+		pjob.Executions[i].Description = e.Description
+		pjob.Executions[i].Error = e.Error
+		pjob.Executions[i].Run = e.Run
+		if e.Public {
+			pjob.Executions[i].Output = e.Output
+		}
+	}
+
+	encoder.Encode(pjob)
 }

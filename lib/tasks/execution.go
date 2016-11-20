@@ -16,6 +16,7 @@ type Execution struct {
 	Error       string
 	Run         bool
 	Network     bool
+	Public      bool // Wether or not the output shall be safely returned to user
 }
 
 // NewExecutionFromJSON unmarshals an Execution from JSON input stream.
@@ -47,6 +48,7 @@ func (e *Execution) DeepCopy() *Execution {
 	f.Expected = e.Expected
 	f.Error = e.Error
 	f.Run = e.Run
+	f.Public = e.Public
 
 	return f
 }
