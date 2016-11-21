@@ -79,10 +79,7 @@ func (s *DockerSandbox) Destroy() {
 
 // Run runs the provided command in the Docker Sandbox.
 func (s *DockerSandbox) Run(command []string, config Config) (string, error) {
-	err := s.setConnectivity(config.Network)
-	if err != nil {
-		return "", err
-	}
+	s.setConnectivity(config.Network)
 
 	execID, err := s.prepareCommand(command)
 	if err != nil {
@@ -254,22 +251,20 @@ func (s *DockerSandbox) launchCommand(execID string, commandChannel chan dockerC
 	commandChannel <- dockerCommandOutput{output, err}
 }
 
-func (s *DockerSandbox) setConnectivity(connection bool) error {
-	var err error
+func (s *DockerSandbox) setConnectivity(connection bool) {
 	if connection {
-		err = s.client.NetworkConnect(
+		_ = s.client.NetworkConnect(
 			context.Background(),
 			"bridge",
 			s.containerID,
 			&network.EndpointSettings{},
 		)
 	} else {
-		err = s.client.NetworkDisconnect(
+		_ = s.client.NetworkDisconnect(
 			context.Background(),
 			"bridge",
 			s.containerID,
 			true,
 		)
 	}
-	return err
 }
