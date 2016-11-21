@@ -6,7 +6,17 @@ import (
 )
 
 func TestDockerSandbox(t *testing.T) {
-	s, err := NewDockerSandbox("superboum/moolinet-golang")
+	c := Config{
+		Timeout: 2 * time.Minute,
+		Network: true,
+	}
+
+	s, err := NewDockerSandbox(DockerSandboxConfig{
+		Image:  "superboum/moolinet-golang",
+		Memory: 1024 * 1024 * 512, // 512 MB
+		Disk:   1024 * 1024 * 100, // 100 MB
+		Procs:  100,
+	})
 
 	if err != nil {
 		t.Error("Unexpected error", err)
@@ -14,10 +24,6 @@ func TestDockerSandbox(t *testing.T) {
 	}
 	defer s.Destroy()
 
-	c := Config{
-		Timeout: 2 * time.Minute,
-		Network: true,
-	}
 	output, err := s.Run([]string{"go", "get", "-v", "-d", "github.com/superboum/atuin/..."}, c)
 	t.Log("output: " + output)
 	if err != nil {

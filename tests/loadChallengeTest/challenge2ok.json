@@ -3,7 +3,9 @@
   "Title": "#02 Challenge OK",
   "Description": "A second challenge",
   "Body": "This is my body\n\nthis is a multiline body   \nwith *some* markdown",
-  "Image": "superboum/moolinet-golang",
+  "Docker": {
+    "Image": "superboum/moolinet-golang"
+  },
   "Template": {
     "Executions": [
       {

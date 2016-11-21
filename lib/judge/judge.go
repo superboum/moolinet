@@ -59,7 +59,7 @@ func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) 
 	if !ok {
 		return nil, errors.New("This challenge does not exist")
 	}
-	job, err := tasks.NewJob(chal.Image, chal.Template, vars)
+	job, err := tasks.NewJob(chal.Docker, chal.Template, vars)
 	if err != nil {
 		return nil, err
 	}

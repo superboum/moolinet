@@ -23,6 +23,14 @@ type DockerSandbox struct {
 	containerID string
 }
 
+// DockerSandboxConfig contains parameters related to the initialization of a Docker Sandbox.
+type DockerSandboxConfig struct {
+	Image  string
+	Memory int64
+	Disk   int64
+	Procs  int64
+}
+
 type dockerCommandOutput struct {
 	output string
 	err    error
@@ -33,10 +41,10 @@ type dockerCommandOutput struct {
 // We should use a design pattern such as Fabric or Builder, or somethng similar
 // In order to split the creation logic and the command logic.
 // BUG(#2) We should not try to download the image every time we start a new container. We should check if it exists locally.
-func NewDockerSandbox(image string) (*DockerSandbox, error) {
+func NewDockerSandbox(c DockerSandboxConfig) (*DockerSandbox, error) {
 	s := new(DockerSandbox)
 	var err error
-	s.image = image
+	s.image = c.Image
 	s.logs = ""
 
 	s.client, err = client.NewEnvClient()
@@ -49,7 +57,7 @@ func NewDockerSandbox(image string) (*DockerSandbox, error) {
 		return nil, err
 	}
 
-	err = s.createContainer()
+	err = s.createContainer(&c)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +115,7 @@ func (s *DockerSandbox) GetLogs() string {
 // command that hangs but do nothing.
 // It will prevent the container from stopping
 // and will enable us to run our desired commands...
-func (s *DockerSandbox) createContainer() error {
+func (s *DockerSandbox) createContainer(c *DockerSandboxConfig) error {
 	container, err := s.client.ContainerCreate(
 		context.Background(),
 		&(container.Config{
@@ -116,6 +124,11 @@ func (s *DockerSandbox) createContainer() error {
 		}),
 		&(container.HostConfig{
 			AutoRemove: true,
+			Resources: container.Resources{
+				Memory:    c.Memory,
+				DiskQuota: c.Disk,
+				PidsLimit: c.Procs,
+			},
 		}),
 		&(network.NetworkingConfig{}),
 		"") // We don't want a name for our container
