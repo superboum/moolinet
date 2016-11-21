@@ -3,6 +3,7 @@ node {
     deleteDir()
     def workspace = pwd()
     env.GOPATH="${workspace}"
+    env.PATH=env.PATH+":"+env.GOPATH+"/bin"
     sh 'mkdir -p bin pkg src src/github.com/superboum/moolinet'
     sh 'env'
   }
@@ -24,6 +25,14 @@ node {
     dir('src/github.com/superboum/moolinet') {
         sh 'go test ./...'
     }
+  }
+
+  stage('Lint') {
+    dir('src/github.com/superboum/moolinet') {
+      sh 'go get -u github.com/alecthomas/gometalinter'
+      sh 'gometalinter --install'
+      sh 'gometalinter -j 1 -t --deadline 100s --exclude "Errors unhandled." --disable gotype ./...'
+    } 
   }
 }
 
