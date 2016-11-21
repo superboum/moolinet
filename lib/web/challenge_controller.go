@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/superboum/moolinet/lib/judge"
@@ -22,5 +23,8 @@ func NewChallengeController(j *judge.Judge) *ChallengeController {
 // ServeHTTP writes the public list of challenges to the result.
 func (c *ChallengeController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	encoder := json.NewEncoder(res)
-	encoder.Encode(c.judge.PublicChallenges)
+	err := encoder.Encode(c.judge.PublicChallenges)
+	if err != nil {
+		log.Println("There was an error while encoding the response: " + err.Error())
+	}
 }

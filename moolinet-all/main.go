@@ -12,7 +12,7 @@ import (
 func main() {
 	judge, err := judge.NewSimpleJudge(&tools.Config{ChallengesPath: "./tests/loadChallengeTest"})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	mux := http.NewServeMux()
@@ -21,5 +21,8 @@ func main() {
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
 	log.Println("Listen on 8080")
-	http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", mux)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

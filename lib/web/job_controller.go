@@ -55,6 +55,12 @@ func (jc *JobController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func checkEncode(errEncode error) {
+	if errEncode != nil {
+		log.Println("There was an error while encoding the response: " + errEncode.Error())
+	}
+}
+
 func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 	newJob := postJob{}
 
@@ -64,18 +70,18 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		res.WriteHeader(400)
-		encoder.Encode(APIError{"Your request is malformed", "Put your JSON body in a validator and check the API"})
+		checkEncode(encoder.Encode(APIError{"Your request is malformed", "Put your JSON body in a validator and check the API"}))
 		return
 	}
 
 	job, err := jc.judge.Submit(newJob.Slug, newJob.Vars)
 	if err != nil {
 		res.WriteHeader(500)
-		encoder.Encode(APIError{"Unable to perform your request", "Please contact a server administrator"})
+		checkEncode(encoder.Encode(APIError{"Unable to perform your request", "Please contact a server administrator"}))
 		log.Println(err)
 		return
 	}
-	encoder.Encode(job)
+	checkEncode(encoder.Encode(job))
 }
 
 func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request) {
@@ -84,7 +90,7 @@ func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request
 	job, err := jc.judge.GetJob(UUID)
 	if err != nil {
 		res.WriteHeader(404)
-		encoder.Encode(APIError{"The UUID was not found", "Check that your job exists"})
+		checkEncode(encoder.Encode(APIError{"The UUID was not found", "Check that your job exists"}))
 		return
 	}
 
@@ -102,5 +108,5 @@ func (jc *JobController) getJobStatus(res http.ResponseWriter, req *http.Request
 		}
 	}
 
-	encoder.Encode(pjob)
+	checkEncode(encoder.Encode(pjob))
 }

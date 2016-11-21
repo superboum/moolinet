@@ -22,7 +22,10 @@ func (w *Worker) Launch() {
 			log.Println("Waiting for a new job")
 			job := w.Jobs.Get()
 			log.Println("Get a new job", job.UUID)
-			job.Process()
+			err := job.Process()
+			if err != nil {
+				log.Println("An error occured while processing the job: " + err.Error())
+			}
 		}
 	}(w)
 }

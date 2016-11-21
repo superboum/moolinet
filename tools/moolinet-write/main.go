@@ -20,8 +20,15 @@ func main() {
 
 	f, err := os.Create(path)
 	check(err)
-	defer f.Close()
+	defer func() {
+		errDefer := f.Close()
+		log.Fatal("Unable to close the reader: " + errDefer.Error())
+	}()
 
-	f.WriteString(content)
+	_, err = f.WriteString(content)
+	if err != nil {
+		log.Fatal("Unable to write content in the file: " + err.Error())
+	}
+
 	check(err)
 }

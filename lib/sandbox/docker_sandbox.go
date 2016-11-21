@@ -43,7 +43,7 @@ type dockerCommandOutput struct {
 // BUG(#2) We should not try to download the image every time we start a new container. We should check if it exists locally.
 func NewDockerSandbox(c DockerSandboxConfig) (*DockerSandbox, error) {
 	s := new(DockerSandbox)
-	err := (error)(nil)
+	var err error
 	s.image = c.Image
 	s.logs = ""
 
@@ -176,7 +176,12 @@ func (s *DockerSandbox) downloadImage() error {
 		s.logs += "Unable to pull the image " + s.image + "\n"
 		return err
 	}
-	defer reader.Close()
+	defer func() {
+		errDefer := reader.Close()
+		if errDefer != nil {
+			log.Println("Cannot close a reader in DockerSandbox.downloadImage: " + errDefer.Error())
+		}
+	}()
 
 	bytesRead, err := ioutil.ReadAll(reader)
 	if err != nil {
@@ -261,14 +266,14 @@ func (s *DockerSandbox) launchCommand(execID string, commandChannel chan dockerC
 
 func (s *DockerSandbox) setConnectivity(connection bool) {
 	if connection {
-		s.client.NetworkConnect(
+		_ = s.client.NetworkConnect(
 			context.Background(),
 			"bridge",
 			s.containerID,
 			&network.EndpointSettings{},
 		)
 	} else {
-		s.client.NetworkDisconnect(
+		_ = s.client.NetworkDisconnect(
 			context.Background(),
 			"bridge",
 			s.containerID,
