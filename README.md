@@ -19,7 +19,13 @@ go get -d github.com/superboum/moolinet/...
 cd $GOPATH/src/github.com/docker/docker
 git checkout 667315576fac663bd80bbada4364413692e57ac6
 
-# Test it !
+# Compile it
+go install ./...
+
+# Run it
+moolinet-all -config moolinet.json
+
+# Test it
 go test -v github.com/superboum/moolinet/... # (you should be in the docker group or run this test as root)
 ```
 

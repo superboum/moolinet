@@ -64,6 +64,11 @@ func LoadChallengesFromPath(challengePath string) (res map[string]*Challenge, lo
 				loadErrors = append(loadErrors, err)
 				continue
 			}
+			defer func() {
+				if errDefer := reader.Close(); errDefer != nil {
+					log.Println("Unable to close a reader", errDefer.Error())
+				}
+			}()
 
 			chal, err := NewChallengeFromJSON(reader)
 			if err != nil {

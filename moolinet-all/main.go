@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 
@@ -10,7 +11,14 @@ import (
 )
 
 func main() {
-	judge, err := judge.NewSimpleJudge(&tools.Config{ChallengesPath: "./tests/loadChallengeTest"})
+	var config = flag.String("config", "moolinet.json", "Choose a config file for moolinet")
+
+	err := tools.LoadGeneralConfigFromFile(*config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	judge, err := judge.NewSimpleJudge(&tools.GeneralConfig)
 	if err != nil {
 		log.Fatal(err)
 	}

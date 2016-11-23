@@ -1,0 +1,5 @@
+{
+  "ChallengesPath": "./tests/loadChallengeTest/",
+  "DatabasePath": "./moolinet.db",
+  "StaticPath": "./static"
+}
