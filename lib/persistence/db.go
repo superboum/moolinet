@@ -22,8 +22,16 @@ func InitDatabase() error {
 	_, err = DB.Exec(`
 CREATE TABLE IF NOT EXISTS user (
   username VARCHAR(255) PRIMARY KEY,
-	password VARCHAR(255) NULL,
-	created DATE NULL
+	password VARCHAR(255) NOT NULL,
+	created DATETIME NOT NULL
+);
+CREATE TABLE IF NOT EXISTS terminated_job (
+	uuid VARCHAR(255) PRIMARY KEY,
+	status INTEGER NOT NULL,
+	created DATETIME NOT NULL,
+	challenge VARCHAR(255) NOT NULL,
+  username VARCHAR(255) NOT NULL,
+	FOREIGN KEY(username) REFERENCES user(username)
 );
 	`)
 

@@ -6,6 +6,10 @@ import (
 	"github.com/superboum/moolinet/lib/tasks"
 )
 
+// TerminatedJob is a struct which allow to save job that ended in base
+type TerminatedJob struct {
+}
+
 // AddJob adds a new job to the database
 func AddJob(job *tasks.Job) error {
 	return nil

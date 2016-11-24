@@ -19,8 +19,29 @@ func TestUser(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = NewUser("test", "coucou")
+	u, err := NewUser("test", "coucou")
 	if err != nil {
 		t.Error(err)
+	}
+	if u.Username != "test" {
+		t.Error("Wrong user name")
+	}
+
+	u, err = LoginUser("test", "coucou")
+	if err != nil {
+		t.Error(err)
+	}
+	if u.Username != "test" {
+		t.Error("Wrong user name")
+	}
+
+	u, err = LoginUser("test2", "coucou")
+	if err.Error() != "Wrong credentials" {
+		t.Error("Expecting 'Wrong credentials' but get", err.Error())
+	}
+
+	u, err = LoginUser("test", "coucou2")
+	if err.Error() != "Wrong credentials" {
+		t.Error("Expecting 'Wrong credentials' but get", err.Error())
 	}
 }

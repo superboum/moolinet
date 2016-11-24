@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"errors"
 	"time"
 
 	// Used for the driver database/sql
@@ -15,6 +16,9 @@ type User struct {
 	Created  time.Time
 }
 
+// ErrWrongCredentials is returned when username or password does not match
+var ErrWrongCredentials = errors.New("Wrong credentials")
+
 // NewUser creates and adds a new user to the database
 func NewUser(username string, password string) (*User, error) {
 	u := &User{Username: username}
@@ -28,7 +32,7 @@ func NewUser(username string, password string) (*User, error) {
 		return nil, err
 	}
 
-	_, err = stmt.Exec(u.Username, u.password, "2012-12-09")
+	_, err = stmt.Exec(u.Username, u.password, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +42,27 @@ func NewUser(username string, password string) (*User, error) {
 
 // LoginUser search a user in the database and return this user if the user exists
 func LoginUser(username string, password string) (*User, error) {
-	return nil, nil
+	stmt, err := DB.Prepare("SELECT username, password, created FROM user WHERE username=?")
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(username)
+	if err != nil {
+		return nil, err
+	}
+
+	if !rows.Next() {
+		return nil, ErrWrongCredentials
+	}
+	u := &User{}
+	err = rows.Scan(&u.Username, &u.password, &u.Created)
+
+	if bcrypt.CompareHashAndPassword([]byte(u.password), []byte(password)) != nil {
+		return nil, ErrWrongCredentials
+	}
+
+	return u, nil
 }
 
 // SetPassword hash users password
