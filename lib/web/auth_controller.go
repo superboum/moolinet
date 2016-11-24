@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ func NewAuthController(baseURL string) *AuthController {
 		baseURL: baseURL,
 	}
 
+	gob.Register(persistence.User{})
 	return a
 }
 
