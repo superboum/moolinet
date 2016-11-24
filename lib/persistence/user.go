@@ -56,9 +56,8 @@ func GetUser(username string) (*User, error) {
 		return nil, ErrWrongCredentials
 	}
 	u := &User{}
-	err = rows.Scan(&u.Username, &u.password, &u.Created)
+	return u, rows.Scan(&u.Username, &u.password, &u.Created)
 
-	return u, nil
 }
 
 // LoginUser search a user in the database and return this user if the user exists

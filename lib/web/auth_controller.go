@@ -31,17 +31,22 @@ type credentials struct {
 	Password string
 }
 
+// Const for HTTP Methods
+const (
+	HTTPMethodPost = "POST"
+)
+
 // ServeHTTP handles authentication requests
 func (a *AuthController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	action := req.URL.Path[len(a.baseURL):]
 	switch {
-	case req.Method == "POST" && action == "login":
+	case req.Method == HTTPMethodPost && action == "login":
 		a.handleLogin(res, req)
 		return
-	case req.Method == "POST" && action == "logout":
+	case req.Method == HTTPMethodPost && action == "logout":
 		a.handleLogout(res, req)
 		return
-	case req.Method == "POST" && action == "register":
+	case req.Method == HTTPMethodPost && action == "register":
 		a.handleRegister(res, req)
 		return
 	}
@@ -75,7 +80,15 @@ func (a *AuthController) setUserToSession(res http.ResponseWriter, req *http.Req
 	}
 
 	session.Values["user"] = u
-	session.Save(req, res)
+	err = session.Save(req, res)
+	if err != nil {
+		res.WriteHeader(500)
+		encoder := json.NewEncoder(res)
+		checkEncode(encoder.Encode(APIError{"Internal error", "Contact an administrator"}))
+		log.Println(err)
+		return err
+	}
+
 	return nil
 }
 
