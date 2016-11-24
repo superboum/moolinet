@@ -21,7 +21,7 @@ var ErrWrongCredentials = errors.New("Wrong credentials")
 
 // NewUser creates and adds a new user to the database
 func NewUser(username string, password string) (*User, error) {
-	u := &User{Username: username}
+	u := &User{Username: username, Created: time.Now()}
 	err := u.SetPassword(password)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func NewUser(username string, password string) (*User, error) {
 		return nil, err
 	}
 
-	_, err = stmt.Exec(u.Username, u.password, time.Now())
+	_, err = stmt.Exec(u.Username, u.password, u.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +40,8 @@ func NewUser(username string, password string) (*User, error) {
 	return u, err
 }
 
-// LoginUser search a user in the database and return this user if the user exists
-func LoginUser(username string, password string) (*User, error) {
+// GetUser from database without checking its password
+func GetUser(username string) (*User, error) {
 	stmt, err := DB.Prepare("SELECT username, password, created FROM user WHERE username=?")
 	if err != nil {
 		return nil, err
@@ -57,6 +57,16 @@ func LoginUser(username string, password string) (*User, error) {
 	}
 	u := &User{}
 	err = rows.Scan(&u.Username, &u.password, &u.Created)
+
+	return u, nil
+}
+
+// LoginUser search a user in the database and return this user if the user exists
+func LoginUser(username string, password string) (*User, error) {
+	u, err := GetUser(username)
+	if err != nil {
+		return nil, err
+	}
 
 	if bcrypt.CompareHashAndPassword([]byte(u.password), []byte(password)) != nil {
 		return nil, ErrWrongCredentials
