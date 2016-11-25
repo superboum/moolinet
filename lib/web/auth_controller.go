@@ -6,21 +6,19 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/sessions"
 	"github.com/superboum/moolinet/lib/persistence"
-	"github.com/superboum/moolinet/lib/tools"
 )
 
 // AuthController is a struct used to managed the controller
 type AuthController struct {
-	store   *sessions.CookieStore
+	auth    *AuthMiddleware
 	baseURL string
 }
 
 // NewAuthController returns a new auth controller
-func NewAuthController(baseURL string) *AuthController {
+func NewAuthController(baseURL string, auth *AuthMiddleware) *AuthController {
 	a := &AuthController{
-		store:   sessions.NewCookieStore([]byte(tools.GeneralConfig.CookieSecretKey)),
+		auth:    auth,
 		baseURL: baseURL,
 	}
 
@@ -72,26 +70,15 @@ func (a *AuthController) getCredentials(res http.ResponseWriter, req *http.Reque
 }
 
 func (a *AuthController) setUserToSession(res http.ResponseWriter, req *http.Request, u *persistence.User) error {
-	session, err := a.store.Get(req, "auth")
+	err := a.auth.SetUser(res, req, u)
 	if err != nil {
 		res.WriteHeader(500)
 		encoder := json.NewEncoder(res)
 		checkEncode(encoder.Encode(APIError{"Internal error", "Contact an administrator"}))
 		log.Println(err)
-		return err
 	}
+	return err
 
-	session.Values["user"] = u
-	err = session.Save(req, res)
-	if err != nil {
-		res.WriteHeader(500)
-		encoder := json.NewEncoder(res)
-		checkEncode(encoder.Encode(APIError{"Internal error", "Contact an administrator"}))
-		log.Println(err)
-		return err
-	}
-
-	return nil
 }
 
 func (a *AuthController) handleLogin(res http.ResponseWriter, req *http.Request) {
@@ -104,7 +91,7 @@ func (a *AuthController) handleLogin(res http.ResponseWriter, req *http.Request)
 	u, err := persistence.LoginUser(creds.Username, creds.Password)
 	if err != nil && err.Error() == "Wrong credentials" {
 		res.WriteHeader(401)
-		checkEncode(encoder.Encode(APIError{"Wrong credentials", "Check your username and and your password"}))
+		checkEncode(encoder.Encode(APIError{"Wrong credentials", "Check your username and your password"}))
 		return
 	} else if err != nil {
 		res.WriteHeader(500)

@@ -29,10 +29,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	auth := web.NewAuthMiddleware()
+
 	mux := http.NewServeMux()
-	mux.Handle("/api/auth/", web.NewAuthController("/api/auth/"))
-	mux.Handle("/api/challenge/", web.NewChallengeController(judge))
-	mux.Handle("/api/job/", web.NewJobController(judge, "/api/job/"))
+	// Authenticated
+	mux.Handle("/api/challenge/", auth.CheckAuthentication(web.NewChallengeController(judge)))
+	mux.Handle("/api/job/", auth.CheckAuthentication(web.NewJobController(judge, "/api/job/")))
+	// Public
+	mux.Handle("/api/auth/", web.NewAuthController("/api/auth/", auth))
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
 	log.Println("Listen on 8080")
