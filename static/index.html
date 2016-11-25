@@ -9,26 +9,25 @@
     <link rel="stylesheet" href="template.css">
     <link rel="stylesheet" href="spinner.css">
   </head>
-  <body>
+  <body ng-controller="HeadController">
     <div class="layout pure-g">
       <div class="sidebar pure-u-1 pure-u-md-1-6">
         <h1>moolinet</h1>
-
-        <div class="pure-menu">
+        <p ng-show="me.Username != null" style="padding: 10px; text-align: center; color: #eee; background-color: #444;">
+          {{ me.Username }}
+        </p>
+        <div class="pure-menu" ng-show="me.Username != null">
           <ul class="pure-menu-list">
-            <li class="pure-menu-heading">Épreuves</li>
+            <li class="pure-menu-heading">Challenges</li>
             <li class="pure-menu-item">
-              <a href="#/challenge" class="pure-menu-link">liste</a>
+              <a href="#/challenge" class="pure-menu-link">> list</a>
             </li>
             <li class="pure-menu-item">
-              <a href="#/hall-of-fame" class="pure-menu-link">classement</a>
+              <a href="#/hall-of-fame" class="pure-menu-link">> ranking</a>
             </li>
-            <li class="pure-menu-heading">mon compte</li>
+            <li class="pure-menu-heading">my account</li>
             <li class="pure-menu-item">
-              <a href="#/configuration" class="pure-menu-link">configuration</a>
-            </li>
-            <li class="pure-menu-item">
-              <a href="#" class="pure-menu-link">déconnexion</a>
+              <a href="#" class="pure-menu-link" ng-click="logout()">> disconnect</a>
             </li>
           </ul>
         </div>

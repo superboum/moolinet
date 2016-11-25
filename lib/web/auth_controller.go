@@ -33,6 +33,7 @@ type credentials struct {
 
 // Const for HTTP Methods
 const (
+	HTTPMethodGet  = "GET"
 	HTTPMethodPost = "POST"
 )
 
@@ -40,10 +41,13 @@ const (
 func (a *AuthController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	action := req.URL.Path[len(a.baseURL):]
 	switch {
+	case req.Method == HTTPMethodGet && action == "me":
+		a.handleMe(res, req)
+		return
 	case req.Method == HTTPMethodPost && action == "login":
 		a.handleLogin(res, req)
 		return
-	case req.Method == HTTPMethodPost && action == "logout":
+	case req.Method == HTTPMethodGet && action == "logout":
 		a.handleLogout(res, req)
 		return
 	case req.Method == HTTPMethodPost && action == "register":
@@ -81,6 +85,21 @@ func (a *AuthController) setUserToSession(res http.ResponseWriter, req *http.Req
 
 }
 
+func (a *AuthController) handleMe(res http.ResponseWriter, req *http.Request) {
+	encoder := json.NewEncoder(res)
+	u, err := a.auth.GetUser(req)
+	if err == ErrNotAuthenticated {
+		res.WriteHeader(401)
+		checkEncode(encoder.Encode(APIError{"Not authenticated", "You should go to the login page"}))
+	} else if err != nil {
+		res.WriteHeader(500)
+		checkEncode(encoder.Encode(APIError{"Internal error", "Contact an administrator"}))
+		log.Println(err)
+	} else {
+		checkEncode(encoder.Encode(u))
+	}
+}
+
 func (a *AuthController) handleLogin(res http.ResponseWriter, req *http.Request) {
 	encoder := json.NewEncoder(res)
 	creds, err := a.getCredentials(res, req)
@@ -108,7 +127,9 @@ func (a *AuthController) handleLogin(res http.ResponseWriter, req *http.Request)
 }
 
 func (a *AuthController) handleLogout(res http.ResponseWriter, req *http.Request) {
-	if a.setUserToSession(res, req, nil) != nil {
+	if err := a.auth.DeleteUser(res, req); err != nil {
+		log.Println(err)
+		res.WriteHeader(500)
 		return
 	}
 	res.WriteHeader(204)

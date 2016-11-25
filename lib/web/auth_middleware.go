@@ -67,6 +67,18 @@ func (a *AuthMiddleware) SetUser(res http.ResponseWriter, req *http.Request, u *
 	return err
 }
 
+// DeleteUser delete the user from the session, that's we want when we disconnect
+func (a *AuthMiddleware) DeleteUser(res http.ResponseWriter, req *http.Request) error {
+	session, err := a.Store.Get(req, "auth")
+	if err != nil {
+		return err
+	}
+	delete(session.Values, "user")
+	err = session.Save(req, res)
+
+	return err
+}
+
 // CheckAuthentication checks that an user is authenticated (with a session)
 func (a *AuthMiddleware) CheckAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
