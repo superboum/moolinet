@@ -46,12 +46,12 @@ func (a *AuthMiddleware) GetUser(req *http.Request) (*persistence.User, error) {
 	}
 
 	log.Println(val)
-	user, ok := val.(*persistence.User)
+	user, ok := val.(persistence.User)
 	if !ok {
 		return nil, ErrWrongUserType
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 // SetUser define the logged user stored in the session
