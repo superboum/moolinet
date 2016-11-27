@@ -14,6 +14,8 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
         controller: 'ChallengeViewController'
       })
       .when('/hall-of-fame', {
+        templateUrl: 'partials/ranking.html',
+        controller: 'RankingController'
       })
       .when('/login', {
         templateUrl: 'partials/login.html',
@@ -60,6 +62,27 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
     };
   }])
 
+  .factory('Ranking', ['$http', 'CheckError', function($http, CheckError) {
+    var raw_ranking = function(cb) {
+      $http.get('/api/job/ranking').then(function(res) { cb(res.data); }, CheckError);
+    };
+
+    var computed_ranking = function(cb) {
+      raw_ranking(function(raw) {
+        res = [];
+        for (var key in raw) {
+          res.push({username: key, score: raw[key].length, last_submission: raw[key].reduce(function(acc, el) { return acc < new Date(el.Created) ? new Date(el.Created) : acc }, new Date("1970-01-01"))});
+        }
+        cb(res);
+      });
+    };
+
+    return {
+      raw: raw_ranking,
+      computed: computed_ranking
+    };
+  }])
+
   .filter('to_trusted', ['$sce', function($sce){
     return function(text) {
       return $sce.trustAsHtml(text);
@@ -103,6 +126,18 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
         $location.path('/login');
       });
     };
+  }])
+
+  .controller('RankingController', ['Ranking', '$scope', '$interval', function(Ranking, $scope, $interval) {
+    finished = $interval(function() {
+      Ranking.computed(function(res) {
+        $scope.ranking = res;
+      });
+    }, 1000);
+
+    $scope.$on('$destroy',function(){
+      $interval.cancel(finished);
+    });
   }])
 
   .controller('ChallengeListController', ['Challenge', '$scope', function(Challenge, $scope) {
