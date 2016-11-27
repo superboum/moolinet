@@ -30,6 +30,7 @@ func NewTerminatedJobFromJob(slug string, user *User, job *tasks.Job) (*Terminat
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = stmt.Close() }()
 
 	return tj, nil
 }
@@ -42,11 +43,13 @@ func GetLastNJobs(count int) ([]*TerminatedJob, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = stmt.Close() }()
 
 	rows, err := stmt.Query(count)
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		t := &TerminatedJob{}
@@ -68,6 +71,7 @@ func GetValidatedChallengePerUser() (map[string][]*TerminatedJob, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		t := &TerminatedJob{}

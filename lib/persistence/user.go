@@ -31,6 +31,7 @@ func NewUser(username string, password string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = stmt.Close() }()
 
 	_, err = stmt.Exec(u.Username, u.password, u.Created)
 	if err != nil {
@@ -46,11 +47,13 @@ func GetUser(username string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = stmt.Close() }()
 
 	rows, err := stmt.Query(username)
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = rows.Close() }()
 
 	if !rows.Next() {
 		return nil, ErrWrongCredentials
