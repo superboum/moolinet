@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/superboum/moolinet/lib/judge"
+	"github.com/superboum/moolinet/lib/persistence"
 )
 
 // JobController is a controller used to manage Jobs.
@@ -50,9 +51,13 @@ func NewJobController(j *judge.Judge, a *AuthMiddleware, baseURL string) *JobCon
 //
 // The expected URL is {baseURL}{jobUUID}.
 func (jc *JobController) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	action := req.URL.Path[len(jc.baseURL):]
 	if req.Method == "POST" {
 		jc.createJob(res, req)
-	} else if len(req.URL.Path[len(jc.baseURL):]) > 0 {
+	} else if action == "ranking" {
+		// @FIXME it would be a better idea to create a ranking controller
+		jc.getRanking(res, req)
+	} else if len(action) > 0 {
 		jc.getJobStatus(res, req)
 	}
 }
@@ -61,6 +66,18 @@ func checkEncode(errEncode error) {
 	if errEncode != nil {
 		log.Println("There was an error while encoding the response: " + errEncode.Error())
 	}
+}
+
+func (jc *JobController) getRanking(res http.ResponseWriter, req *http.Request) {
+	list, err := persistence.GetValidatedChallengePerUser()
+	encoder := json.NewEncoder(res)
+	if err != nil {
+		res.WriteHeader(500)
+		checkEncode(encoder.Encode(APIError{"Unable to perform your request", "Please contact a server administrator"}))
+		log.Println(err)
+		return
+	}
+	checkEncode(encoder.Encode(list))
 }
 
 func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
