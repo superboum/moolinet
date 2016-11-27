@@ -11,6 +11,7 @@ import (
 // JobController is a controller used to manage Jobs.
 type JobController struct {
 	judge   *judge.Judge
+	auth    *AuthMiddleware
 	baseURL string
 }
 
@@ -34,10 +35,11 @@ type getJob struct {
 
 // NewJobController returns a new JobController from a Judge and a baseURL.
 // The baseURL is used to clean URLs when generating job IDs.
-func NewJobController(j *judge.Judge, baseURL string) *JobController {
+func NewJobController(j *judge.Judge, a *AuthMiddleware, baseURL string) *JobController {
 	jc := new(JobController)
 	jc.judge = j
 	jc.baseURL = baseURL
+	jc.auth = a
 	return jc
 }
 
@@ -74,7 +76,15 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	job, err := jc.judge.Submit(newJob.Slug, newJob.Vars)
+	u, err := jc.auth.GetUser(req)
+	if err != nil {
+		res.WriteHeader(500)
+		checkEncode(encoder.Encode(APIError{"Unable to perform your request", "Please contact a server administrator"}))
+		log.Println(err)
+		return
+	}
+
+	job, err := jc.judge.Submit(newJob.Slug, newJob.Vars, u)
 	if err != nil {
 		res.WriteHeader(500)
 		checkEncode(encoder.Encode(APIError{"Unable to perform your request", "Please contact a server administrator"}))

@@ -27,10 +27,10 @@ CREATE TABLE IF NOT EXISTS user (
 );
 CREATE TABLE IF NOT EXISTS terminated_job (
 	uuid VARCHAR(255) PRIMARY KEY,
-	status INTEGER NOT NULL,
-	created DATETIME NOT NULL,
 	challenge VARCHAR(255) NOT NULL,
   username VARCHAR(255) NOT NULL,
+	status INTEGER NOT NULL,
+	created DATETIME NOT NULL,
 	FOREIGN KEY(username) REFERENCES user(username)
 );
 	`)

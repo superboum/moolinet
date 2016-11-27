@@ -26,6 +26,10 @@ func (w *Worker) Launch() {
 			if err != nil {
 				log.Println("An error occured while processing the job: " + err.Error())
 			}
+			err = job.Callback(job)
+			if err != nil {
+				log.Println("An error occured in the callback of the job: " + err.Error())
+			}
 		}
 	}(w)
 }

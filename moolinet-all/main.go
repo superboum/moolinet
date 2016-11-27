@@ -34,7 +34,7 @@ func main() {
 	mux := http.NewServeMux()
 	// Authenticated
 	mux.Handle("/api/challenge/", auth.CheckAuthentication(web.NewChallengeController(judge)))
-	mux.Handle("/api/job/", auth.CheckAuthentication(web.NewJobController(judge, "/api/job/")))
+	mux.Handle("/api/job/", auth.CheckAuthentication(web.NewJobController(judge, auth, "/api/job/")))
 	// Public
 	mux.Handle("/api/auth/", web.NewAuthController("/api/auth/", auth))
 	mux.Handle("/", http.FileServer(http.Dir("static")))

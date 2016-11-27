@@ -15,8 +15,6 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
       })
       .when('/hall-of-fame', {
       })
-      .when('/configuration', {
-      })
       .when('/login', {
         templateUrl: 'partials/login.html',
         controller: 'LoginController'

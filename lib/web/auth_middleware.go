@@ -45,7 +45,6 @@ func (a *AuthMiddleware) GetUser(req *http.Request) (*persistence.User, error) {
 		return nil, ErrNotAuthenticated
 	}
 
-	log.Println(val)
 	user, ok := val.(persistence.User)
 	if !ok {
 		return nil, ErrWrongUserType
