@@ -75,7 +75,7 @@ func GetLastNJobs(count int) ([]*TerminatedJob, error) {
 func GetValidatedChallengePerUser() (map[string][]*TerminatedJob, error) {
 	res := make(map[string][]*TerminatedJob)
 
-	rows, err := DB.Query("SELECT uuid, challenge, username, status, datetime(MIN(created)) FROM job GROUP BY challenge, username HAVING status = 3")
+	rows, err := DB.Query("SELECT uuid, challenge, username, status, datetime(MIN(created)) FROM job WHERE status=3 GROUP BY challenge, username")
 	if err != nil {
 		return nil, err
 	}
