@@ -45,7 +45,7 @@ func NewTerminatedJobFromJob(slug string, user *User, job *tasks.Job) (*Terminat
 
 // GetLastNJobs gets a given amount of jobs from the database
 func GetLastNJobs(count int) ([]*TerminatedJob, error) {
-	res := make([]*TerminatedJob, 0)
+	var res []*TerminatedJob
 
 	stmt, err := DB.Prepare("SELECT uuid, challenge, username, status, created FROM job ORDER BY created DESC LIMIT 0,?")
 	if err != nil {

@@ -39,8 +39,8 @@ func main() {
 	mux.Handle("/api/auth/", web.NewAuthController("/api/auth/", auth))
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
-	log.Println("Listen on 8080")
-	err = http.ListenAndServe(":8080", mux)
+	log.Println("Listening on " + tools.GeneralConfig.ListenAddr)
+	err = http.ListenAndServe(tools.GeneralConfig.ListenAddr, mux)
 	if err != nil {
 		log.Fatal(err)
 	}

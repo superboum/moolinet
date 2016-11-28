@@ -1,5 +1,9 @@
 {
   "ChallengesPath": "./tests/loadChallengeTest/",
   "DatabasePath": "./moolinet.db",
-  "StaticPath": "./static"
+  "StaticPath": "./static",
+  "CookieSecretKey": "CHANGE_ME",
+  "ListenAddr": ":8080",
+  "MaxSubmissionSize": 10240,
+  "Workers": 2
 }

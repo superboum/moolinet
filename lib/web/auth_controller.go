@@ -142,6 +142,12 @@ func (a *AuthController) handleRegister(res http.ResponseWriter, req *http.Reque
 		return
 	}
 
+	if creds.Username == "" || creds.Password == "" {
+		res.WriteHeader(500)
+		checkEncode(encoder.Encode(APIError{"Invalid input", "Please fill both username and password"}))
+		return
+	}
+
 	u, err := persistence.NewUser(creds.Username, creds.Password)
 	if err != nil {
 		res.WriteHeader(500)

@@ -15,7 +15,6 @@ import (
 // It stores every component of the judging system (workers, challenges...).
 type Judge struct {
 	Queue            *tasks.JobQueue
-	Worker           *tasks.Worker
 	ActiveJobs       map[string]*tasks.Job
 	Challenges       map[string]*Challenge
 	PublicChallenges []*Challenge
@@ -28,7 +27,6 @@ type Judge struct {
 func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j := new(Judge)
 	j.Queue = tasks.NewJobQueue()
-	j.Worker = tasks.NewWorker(j.Queue)
 	j.Config = conf
 	j.Warnings = make([]error, 0)
 	j.ActiveJobs = make(map[string]*tasks.Job)
@@ -39,7 +37,10 @@ func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 		return nil, err
 	}
 
-	j.Worker.Launch()
+	for i := 0; i < tools.GeneralConfig.Workers; i++ {
+		tasks.NewWorker(j.Queue).Launch()
+	}
+
 	return j, nil
 }
 

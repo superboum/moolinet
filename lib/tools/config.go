@@ -8,10 +8,13 @@ import (
 
 // Config holds the global configuration of moolinet.
 type Config struct {
-	ChallengesPath  string
-	DatabasePath    string
-	StaticPath      string
-	CookieSecretKey string
+	ChallengesPath    string
+	DatabasePath      string
+	StaticPath        string
+	CookieSecretKey   string
+	ListenAddr        string
+	MaxSubmissionSize int64
+	Workers           int
 }
 
 // GeneralConfig for the programm

@@ -2,11 +2,13 @@ package web
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/superboum/moolinet/lib/judge"
 	"github.com/superboum/moolinet/lib/persistence"
+	"github.com/superboum/moolinet/lib/tools"
 )
 
 // JobController is a controller used to manage Jobs.
@@ -84,7 +86,7 @@ func (jc *JobController) createJob(res http.ResponseWriter, req *http.Request) {
 	newJob := postJob{}
 
 	encoder := json.NewEncoder(res)
-	decoder := json.NewDecoder(req.Body)
+	decoder := json.NewDecoder(io.LimitReader(req.Body, tools.GeneralConfig.MaxSubmissionSize))
 	err := decoder.Decode(&newJob)
 
 	if err != nil {
