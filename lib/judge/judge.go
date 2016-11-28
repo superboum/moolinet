@@ -3,6 +3,7 @@ package judge
 import (
 	"errors"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/superboum/moolinet/lib/persistence"
@@ -20,6 +21,7 @@ type Judge struct {
 	PublicChallenges []*Challenge
 	Config           *tools.Config
 	Warnings         []error
+	mutex            sync.Mutex
 }
 
 // NewSimpleJudge returns a Judge from configuration.
@@ -30,6 +32,7 @@ func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j.Config = conf
 	j.Warnings = make([]error, 0)
 	j.ActiveJobs = make(map[string]*tasks.Job)
+	j.mutex = sync.Mutex{}
 
 	err := j.ReloadChallenge()
 	if err != nil {
@@ -73,7 +76,9 @@ func (j *Judge) Submit(slug string, vars map[string]string, u *persistence.User)
 		go func() {
 			time.Sleep(1 * time.Minute)
 			log.Println("Clear job", currentJob.UUID)
+			j.mutex.Lock()
 			delete(j.ActiveJobs, currentJob.UUID)
+			j.mutex.Unlock()
 		}()
 
 		return err
@@ -84,7 +89,9 @@ func (j *Judge) Submit(slug string, vars map[string]string, u *persistence.User)
 		return nil, err
 	}
 
+	j.mutex.Lock()
 	j.ActiveJobs[job.UUID] = job
+	j.mutex.Unlock()
 	j.Queue.Add(job)
 
 	return job, nil
