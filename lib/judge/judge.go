@@ -37,7 +37,11 @@ func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 		return nil, err
 	}
 
-	for i := 0; i < tools.GeneralConfig.Workers; i++ {
+	if conf.Workers <= 0 {
+		conf.Workers = 1
+	}
+
+	for i := 0; i < conf.Workers; i++ {
 		tasks.NewWorker(j.Queue).Launch()
 	}
 
