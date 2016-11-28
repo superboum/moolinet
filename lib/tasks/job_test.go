@@ -10,7 +10,7 @@ import (
 func TestNewJob(t *testing.T) {
 	jt := JobTemplate{[]*Execution{&Execution{Command: []string{"cat", "[PATH]"}, Network: true, Timeout: 120}}}
 	vars := map[string]string{"[PATH]": "/etc/hosts"}
-	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, vars)
+	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, vars, func(_ *Job) error { return nil })
 	if err != nil {
 		t.Error("Unable to create the job", err)
 		return
@@ -37,7 +37,7 @@ func TestNewJob_BadOutput(t *testing.T) {
 		Timeout:  120,
 		Expected: "world",
 	}}}
-	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, make(map[string]string))
+	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, make(map[string]string), func(_ *Job) error { return nil })
 	if err != nil {
 		t.Error("Unable to create the job", err)
 		return

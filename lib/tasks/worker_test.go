@@ -20,7 +20,7 @@ func TestWorker(t *testing.T) {
 		Timeout: 120}}}
 	vars := map[string]string{
 		"[PATH]": "/etc/hosts"}
-	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, vars)
+	j, err := NewJob(sandbox.DockerSandboxConfig{Image: "superboum/moolinet-golang"}, jt, vars, func(_ *Job) error { return nil })
 	if err != nil {
 		t.Error("Couldn't create a job", err)
 		return

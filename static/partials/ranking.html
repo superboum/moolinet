@@ -1,0 +1,22 @@
+<div class="pure-g">
+  <div class="pure-u-1">
+    <div class="content">
+      <table class="pure-table">
+        <thead>
+          <th>#</th>
+          <th>Username</th>
+          <th>Score</th>
+          <th>Last submission</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="elem in ranking | orderBy:['-score', 'last_submission']">
+            <td>{{ $index+1 }}</td>
+            <td>{{ elem.username }}</td>
+            <td>{{ elem.score }}</td>
+            <td>{{ elem.last_submission | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

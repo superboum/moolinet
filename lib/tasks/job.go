@@ -27,11 +27,13 @@ type Job struct {
 	Config     interface{}
 	Executions []*Execution
 	Status     int
-	Progress   chan *Execution `json:"-"`
+	Progress   chan *Execution    `json:"-"`
+	Callback   func(j *Job) error `json:"-"`
+	Variables  map[string]string  `json:"-"`
 }
 
 // NewJob creates a new Job from standard parameters.
-func NewJob(config interface{}, template JobTemplate, variables map[string]string) (*Job, error) {
+func NewJob(config interface{}, template JobTemplate, variables map[string]string, cb func(j *Job) error) (*Job, error) {
 	j := new(Job)
 
 	uuid, err := tools.NewUUID()
@@ -44,6 +46,8 @@ func NewJob(config interface{}, template JobTemplate, variables map[string]strin
 	j.Executions = template.GenerateExecution(variables)
 	j.Progress = make(chan *Execution, 100)
 	j.Status = JobStatusInQueue
+	j.Callback = cb
+	j.Variables = variables
 
 	return j, nil
 }
@@ -86,5 +90,6 @@ func (j *Job) Process() error {
 	if j.Status == JobStatusInProgress {
 		j.Status = JobStatusSuccess
 	}
+
 	return nil
 }

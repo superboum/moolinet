@@ -2,7 +2,11 @@ package judge
 
 import (
 	"errors"
+	"log"
+	"sync"
+	"time"
 
+	"github.com/superboum/moolinet/lib/persistence"
 	"github.com/superboum/moolinet/lib/tasks"
 	"github.com/superboum/moolinet/lib/tools"
 )
@@ -11,29 +15,36 @@ import (
 // It stores every component of the judging system (workers, challenges...).
 type Judge struct {
 	Queue            *tasks.JobQueue
-	Worker           *tasks.Worker
 	ActiveJobs       map[string]*tasks.Job
 	Challenges       map[string]*Challenge
 	PublicChallenges []*Challenge
 	Config           *tools.Config
 	Warnings         []error
+	mutex            sync.Mutex
 }
 
 // NewSimpleJudge returns a Judge from configuration.
 func NewSimpleJudge(conf *tools.Config) (*Judge, error) {
 	j := new(Judge)
 	j.Queue = tasks.NewJobQueue()
-	j.Worker = tasks.NewWorker(j.Queue)
 	j.Config = conf
 	j.Warnings = make([]error, 0)
 	j.ActiveJobs = make(map[string]*tasks.Job)
+	j.mutex = sync.Mutex{}
 
 	err := j.ReloadChallenge()
 	if err != nil {
 		return nil, err
 	}
 
-	j.Worker.Launch()
+	if conf.Workers <= 0 {
+		conf.Workers = 1
+	}
+
+	for i := 0; i < conf.Workers; i++ {
+		tasks.NewWorker(j.Queue).Launch()
+	}
+
 	return j, nil
 }
 
@@ -54,17 +65,39 @@ func (j *Judge) ReloadChallenge() error {
 }
 
 // Submit submits the code to the queue, returning the waiting job.
-func (j *Judge) Submit(slug string, vars map[string]string) (*tasks.Job, error) {
+func (j *Judge) Submit(slug string, vars map[string]string, u *persistence.User) (*tasks.Job, error) {
 	chal, ok := j.Challenges[slug]
 	if !ok {
 		return nil, errors.New("This challenge does not exist")
 	}
-	job, err := tasks.NewJob(chal.Docker, chal.Template, vars)
+
+	cb := func(currentJob *tasks.Job) error {
+		// Job saving
+		// @FIXME Challenge and Judge should be in a different package as Judge depends on persistence but persistence should depends on Challenge
+		_, err := persistence.NewTerminatedJobFromJob(slug, u, currentJob)
+
+		// Remove job from the list
+		// @FIXME There is probably a better solution
+		go func() {
+			time.Sleep(1 * time.Minute)
+			log.Println("Clear job", currentJob.UUID)
+			j.mutex.Lock()
+			delete(j.ActiveJobs, currentJob.UUID)
+			j.mutex.Unlock()
+		}()
+
+		return err
+	}
+
+	job, err := tasks.NewJob(chal.Docker, chal.Template, vars, cb)
 	if err != nil {
 		return nil, err
 	}
-	j.Queue.Add(job)
+
+	j.mutex.Lock()
 	j.ActiveJobs[job.UUID] = job
+	j.mutex.Unlock()
+	j.Queue.Add(job)
 
 	return job, nil
 }
