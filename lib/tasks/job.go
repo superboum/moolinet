@@ -29,6 +29,7 @@ type Job struct {
 	Status     int
 	Progress   chan *Execution    `json:"-"`
 	Callback   func(j *Job) error `json:"-"`
+	Variables  map[string]string  `json:"-"`
 }
 
 // NewJob creates a new Job from standard parameters.
@@ -46,6 +47,7 @@ func NewJob(config interface{}, template JobTemplate, variables map[string]strin
 	j.Progress = make(chan *Execution, 100)
 	j.Status = JobStatusInQueue
 	j.Callback = cb
+	j.Variables = variables
 
 	return j, nil
 }

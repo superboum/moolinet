@@ -13,7 +13,7 @@
             <td>{{ $index+1 }}</td>
             <td>{{ elem.username }}</td>
             <td>{{ elem.score }}</td>
-            <td>{{ elem.last_submission }}</td>
+            <td>{{ elem.last_submission | date:'short' }}</td>
           </tr>
         </tbody>
       </table>

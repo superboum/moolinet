@@ -13,20 +13,28 @@ type TerminatedJob struct {
 	UUID      string
 	Challenge string
 	Username  string
+	Code      string
 	Status    int
 	Created   time.Time
 }
 
 // NewTerminatedJobFromJob returns a terminated and persisted job
 func NewTerminatedJobFromJob(slug string, user *User, job *tasks.Job) (*TerminatedJob, error) {
-	tj := &TerminatedJob{UUID: job.UUID, Username: user.Username, Status: job.Status, Challenge: slug, Created: time.Now()}
+	tj := &TerminatedJob{
+		UUID:      job.UUID,
+		Challenge: slug,
+		Username:  user.Username,
+		Code:      job.Variables["[CODE]"],
+		Status:    job.Status,
+		Created:   time.Now(),
+	}
 
-	stmt, err := DB.Prepare("INSERT INTO job(uuid, challenge, username, status, created) values(?,?,?,?,?)")
+	stmt, err := DB.Prepare("INSERT INTO job (uuid, challenge, username, code, status, created) VALUES (?,?,?,?,?,?)")
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = stmt.Exec(tj.UUID, tj.Challenge, tj.Username, tj.Status, tj.Created)
+	_, err = stmt.Exec(tj.UUID, tj.Challenge, tj.Username, tj.Code, tj.Status, tj.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +75,7 @@ func GetLastNJobs(count int) ([]*TerminatedJob, error) {
 func GetValidatedChallengePerUser() (map[string][]*TerminatedJob, error) {
 	res := make(map[string][]*TerminatedJob)
 
-	rows, err := DB.Query("SELECT uuid, challenge, username, status, created FROM job WHERE status=3")
+	rows, err := DB.Query("SELECT uuid, challenge, username, status, datetime(MIN(created)) FROM job GROUP BY challenge, username HAVING status = 3")
 	if err != nil {
 		return nil, err
 	}
@@ -75,10 +83,14 @@ func GetValidatedChallengePerUser() (map[string][]*TerminatedJob, error) {
 
 	for rows.Next() {
 		t := &TerminatedJob{}
-		err := rows.Scan(&t.UUID, &t.Challenge, &t.Username, &t.Status, &t.Created)
+		var tmp string
+		err := rows.Scan(&t.UUID, &t.Challenge, &t.Username, &t.Status, &tmp)
 		if err != nil {
 			return nil, err
 		}
+
+		t.Created, _ = time.Parse("2006-01-02 15:04:05", tmp)
+
 		if _, ok := res[t.Username]; !ok {
 			res[t.Username] = make([]*TerminatedJob, 0)
 		}

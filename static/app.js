@@ -129,11 +129,13 @@ angular.module('moolinet', ['ngResource', 'ngRoute'])
   }])
 
   .controller('RankingController', ['Ranking', '$scope', '$interval', function(Ranking, $scope, $interval) {
-    finished = $interval(function() {
+    f = function() {
       Ranking.computed(function(res) {
         $scope.ranking = res;
       });
-    }, 1000);
+    };
+    finished = $interval(f, 10000);
+    f();
 
     $scope.$on('$destroy',function(){
       $interval.cancel(finished);

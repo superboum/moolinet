@@ -20,19 +20,20 @@ func InitDatabase() error {
 	}
 
 	_, err = DB.Exec(`
-CREATE TABLE IF NOT EXISTS user (
-  username VARCHAR(255) PRIMARY KEY,
-	password VARCHAR(255) NOT NULL,
-	created DATETIME NOT NULL
-);
-CREATE TABLE IF NOT EXISTS job (
-	uuid VARCHAR(255) PRIMARY KEY,
-	challenge VARCHAR(255) NOT NULL,
-  username VARCHAR(255) NOT NULL,
-	status INTEGER NOT NULL,
-	created DATETIME NOT NULL,
-	FOREIGN KEY(username) REFERENCES user(username)
-);
+	CREATE TABLE IF NOT EXISTS user (
+		username VARCHAR(255) PRIMARY KEY,
+		password VARCHAR(255) NOT NULL,
+		created DATETIME NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS job (
+		uuid VARCHAR(255) PRIMARY KEY,
+		challenge VARCHAR(255) NOT NULL,
+		username VARCHAR(255) NOT NULL,
+		code TEXT,
+		status INTEGER NOT NULL,
+		created DATETIME NOT NULL,
+		FOREIGN KEY(username) REFERENCES user(username)
+	);
 	`)
 
 	return err
