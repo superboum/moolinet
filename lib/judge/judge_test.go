@@ -8,7 +8,7 @@ import (
 )
 
 func TestJudge(t *testing.T) {
-	judge, err := NewSimpleJudge(&tools.Config{ChallengesPath: "../../tests/loadChallengeTest"})
+	judge, err := NewSimpleJudge(&tools.Config{ChallengesPath: "../../challenges"})
 	if err != nil {
 		t.Error("Unable to create judge", err)
 		return
@@ -28,7 +28,7 @@ func TestJudge(t *testing.T) {
 }
 
 func TestJudgeChallengeNotFound(t *testing.T) {
-	judge, err := NewSimpleJudge(&tools.Config{ChallengesPath: "../../tests/loadChallengeTest"})
+	judge, err := NewSimpleJudge(&tools.Config{ChallengesPath: "../../challenges"})
 	if err != nil {
 		t.Error("Unable to create judge", err)
 		return

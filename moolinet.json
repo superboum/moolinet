@@ -1,5 +1,5 @@
 {
-  "ChallengesPath": "./tests/loadChallengeTest/",
+  "ChallengesPath": "./challenges/",
   "DatabasePath": "./moolinet.db",
   "StaticPath": "./static",
   "CookieSecretKey": "CHANGE_ME",
