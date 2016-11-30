@@ -12,7 +12,7 @@ node {
         checkout scm
         sh 'make prepare docker=1.12'
         sh 'make'
-        archiveArtifacts 'release/**/*'
+        zip archive: true, dir: './release/', glob: '', zipFile: 'moolinet.linux.amd64.zip'
     }
   }
 
