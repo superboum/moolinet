@@ -14,6 +14,10 @@ DOCKER_1.13=master
 DOCKER_1.12=667315576fac663bd80bbada4364413692e57ac6
 
 .DEFAULT_GOAL: $(BINARY)
+$(BINARY): $(SOURCES)
+	mkdir -p release/
+	cp -r moolinet.json challenges/ static/ release/
+	go build ${LDFLAGS} -o ${BINARY} moolinet-all/main.go
 
 prepare:
 	go get -d -v ./...
@@ -24,11 +28,6 @@ prepare:
 		echo "-> CHECKOUT" && git checkout ${DOCKER_${docker}}
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install
-
-$(BINARY): $(SOURCES)
-	mkdir -p release/
-	cp -r moolinet.json challenges/ static/ release/
-	go build ${LDFLAGS} -o ${BINARY} moolinet-all/main.go
 
 .PHONY: install
 install:
