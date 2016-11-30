@@ -37,7 +37,7 @@ install:
 clean:
 	if [ -d release/ ] ; then rm -r release/ ; fi
 
-.PHONY: clean
+.PHONY: test
 test:
 	go test ./...
 
