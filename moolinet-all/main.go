@@ -11,7 +11,16 @@ import (
 	"github.com/superboum/moolinet/lib/web"
 )
 
+var (
+	// Version is the current version of moolinet
+	Version string
+)
+
 func main() {
+	if Version == "" {
+		Version = "DEVELOPMENT"
+	}
+	log.Println("moolinet " + Version)
 	var config = flag.String("config", "moolinet.json", "Choose a config file for moolinet")
 
 	err := tools.LoadGeneralConfigFromFile(*config)
