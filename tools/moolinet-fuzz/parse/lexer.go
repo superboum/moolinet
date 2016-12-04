@@ -33,7 +33,7 @@ type lexer struct {
 }
 
 func (l *lexer) newVar() string {
-	s := fmt.Sprintf("{{.vars[%d]}}", l.i)
+	s := fmt.Sprintf("{{index . %d}}", l.i)
 	l.i++
 	return s
 }

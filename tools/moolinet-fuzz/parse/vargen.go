@@ -1,6 +1,6 @@
 package parse
 
-// VarGeb is a variable generator interface
+// VarGen is a variable generator interface
 type VarGen interface {
 	String() string
 }
