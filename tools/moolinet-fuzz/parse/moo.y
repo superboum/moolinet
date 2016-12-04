@@ -1,7 +1,10 @@
 %{
 package parse
 
-import "strconv"
+import (
+  "fmt"
+  "strconv"
+)
 
 type intspec struct {
   min, max int
@@ -14,10 +17,10 @@ type intspec struct {
   intspec intspec
 }
 
-%type <text> expr type
+%type <text> expr type loop
 %type <num> int
 %type <intspec> intspec
-%token INT
+%token INT STARTLOOP ENDLOOP
 %token <text> TEXT NUM
 
 %%
@@ -30,6 +33,10 @@ top:
 
 expr:
   /* Empty rule */ { $$ = "" }
+| loop expr ENDLOOP expr
+  {
+    $$ = $1 + $2 + "{{end}}" + $4
+  }
 | type expr
   {
     $$ = $1 + $2
@@ -42,7 +49,8 @@ expr:
 type:
   INT intspec {
     l := yylex.(*lexer)
-    $$ = l.newVar()
+    $$ = fmt.Sprintf("{{index $.Vars %d}}", l.i)
+    l.i++
 
     v, _ := NewVarGenIntegerWithBounds($2.min, $2.max)
     l.vars = append(l.vars, v)
@@ -50,6 +58,7 @@ type:
 
 intspec:
   { $$ = intspec{-1000, 1000} } // default value
+| int { $$ = intspec{0, $1} }
 | int int { $$ = intspec{$1, $2} }
 
 int: NUM
@@ -57,4 +66,16 @@ int: NUM
     i, _ := strconv.ParseInt($1, 0, 0)
     $$ = int(i)
   }
+
+loop:
+  STARTLOOP intspec
+  {
+    l := yylex.(*lexer)
+    $$ = fmt.Sprintf("{{range (index $.Vars %d | $.GenRange)}}", l.i)
+    l.i++
+
+    v, _ := NewVarGenIntegerWithBounds($2.min, $2.max)
+    l.vars = append(l.vars, v)
+  }
+
 %%

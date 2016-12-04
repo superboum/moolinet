@@ -3,12 +3,25 @@ package parse
 import (
 	"bytes"
 	"html/template"
+	"strconv"
 )
+
+type tmplInput struct {
+	Vars []VarGen
+}
+
+func (t *tmplInput) GenRange(n *VarGenInteger) []bool {
+	i, _ := strconv.Atoi(n.String())
+	if i < 0 {
+		i = 0
+	}
+	return make([]bool, i)
+}
 
 // Grammar is a representation of a parsed MOO grammar.
 type Grammar struct {
-	tmpl *template.Template
-	vars []VarGen
+	tmpl  *template.Template
+	input *tmplInput
 }
 
 // NewGrammar returns a new grammar from a MOO string.
@@ -28,13 +41,15 @@ func NewGrammar(g string) (*Grammar, error) {
 
 	return &Grammar{
 		tmpl: t,
-		vars: l.vars,
+		input: &tmplInput{
+			Vars: l.vars,
+		},
 	}, nil
 }
 
 // Render returns a fuzzed generation fulfilling grammar specification.
 func (g *Grammar) Render() ([]byte, error) {
 	b := &bytes.Buffer{}
-	err := g.tmpl.Execute(b, g.vars)
+	err := g.tmpl.Execute(b, g.input)
 	return b.Bytes(), err
 }

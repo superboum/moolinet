@@ -30,8 +30,7 @@ prepare:
 	gometalinter --install
 
 .PHONY: install
-install:
-	go generate ./...
+install: generate
 	go install ${LDFLAGS} ./...
 
 .PHONY: clean
@@ -39,9 +38,16 @@ clean:
 	if [ -d release/ ] ; then rm -r release/ ; fi
 
 .PHONY: test
-test:
+test: generate
 	go test ./...
 
 .PHONY: lint
-lint:
-	gometalinter -j 1 -t --deadline 100s --exclude "Errors unhandled." --disable gotype ./...
+lint: install
+	gometalinter -j 1 -t --deadline 100s \
+		--exclude "Errors unhandled." \
+		--exclude "moo.go" \
+		--disable gotype --disable interfacer ./...
+
+.PHONY: generate
+generate:
+	go generate ./...

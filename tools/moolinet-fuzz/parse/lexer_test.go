@@ -1,20 +1,24 @@
 package parse
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
-func TestLexer(t *testing.T) {
-	l := &lexer{
-		input: "int | int#-100,0xff",
-		items: make(chan item),
+func TestGrammar(t *testing.T) {
+	testCases := []string{
+		"int | int#-100,0xff | int#1,2#2",
+		"loop#5,10int,endloopint",
 	}
 
-	go l.run()
+	for _, c := range testCases {
+		g, err := NewGrammar(c)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	p := &yyParserImpl{}
-	p.Parse(l)
-	fmt.Println(l.grammar)
-	fmt.Println(l.vars)
+		r, err := g.Render()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		t.Logf("%s", r)
+	}
 }

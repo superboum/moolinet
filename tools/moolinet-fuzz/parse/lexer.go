@@ -4,7 +4,6 @@
 package parse
 
 import (
-	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -20,22 +19,17 @@ type item struct {
 
 // lexer is inspired by Rob Pike's regexp lexer.
 type lexer struct {
-	input string // string being scanned
-	start int    // start position of item
-	pos   int    // current position in input
-	width int    // width of last rune read, used for backup
-	items chan item
+	input   string // string being scanned
+	start   int    // start position of item
+	pos     int    // current position in input
+	width   int    // width of last rune read, used for backup
+	items   chan item
+	keyword *lexKeyword
 
 	// Output and local variables
 	grammar string
 	vars    []VarGen
-	i       int // used as a counter of variables
-}
-
-func (l *lexer) newVar() string {
-	s := fmt.Sprintf("{{index . %d}}", l.i)
-	l.i++
-	return s
+	i       int // used as a counters of variables
 }
 
 func (l *lexer) next() (r rune) {
@@ -60,6 +54,12 @@ func (l *lexer) emit(t int) {
 }
 
 func (l *lexer) run() {
+	lexKeywords = []*lexKeyword{
+		{"int", INT, lexInt},
+		{"loop", STARTLOOP, lexInt},
+		{"endloop", ENDLOOP, lexEnd},
+	}
+
 	for state := lexText; state != nil; {
 		state = state(l)
 	}
@@ -100,13 +100,24 @@ func (l *lexer) Error(s string) {
 
 // state transitions functions
 
+type lexKeyword struct {
+	tok string
+	typ int
+	sta stateFn
+}
+
+var lexKeywords []*lexKeyword
+
 func lexText(l *lexer) stateFn {
 	for {
-		if strings.HasPrefix(l.input[l.pos:], "int") {
-			if l.pos > l.start {
-				l.emit(TEXT)
+		for _, keyword := range lexKeywords {
+			if strings.HasPrefix(l.input[l.pos:], keyword.tok) {
+				if l.pos > l.start {
+					l.emit(TEXT)
+				}
+				l.keyword = keyword
+				return keyword.sta
 			}
-			return lexInt
 		}
 		if l.next() == eof {
 			break
@@ -121,8 +132,8 @@ func lexText(l *lexer) stateFn {
 }
 
 func lexInt(l *lexer) stateFn {
-	l.pos += 3
-	l.emit(INT)
+	l.pos += len(l.keyword.tok)
+	l.emit(l.keyword.typ)
 
 	if l.next() == '#' {
 		l.ignore()
@@ -130,6 +141,12 @@ func lexInt(l *lexer) stateFn {
 	}
 
 	l.backup()
+	return lexText
+}
+
+func lexEnd(l *lexer) stateFn {
+	l.pos += len(l.keyword.tok)
+	l.emit(l.keyword.typ)
 	return lexText
 }
 
@@ -150,11 +167,19 @@ func lexNum(l *lexer) stateFn {
 	}
 	l.emit(NUM)
 
-	// Consume optionnal coma
-	if l.next() == ',' {
+	// Consume optional coma
+	next := l.next()
+	if next == ',' {
 		l.ignore()
 		return lexNum
 	}
+
+	// Consume optional number separator
+	if next == '#' {
+		l.ignore()
+		return lexText
+	}
+
 	l.backup()
 	return lexText
 }
