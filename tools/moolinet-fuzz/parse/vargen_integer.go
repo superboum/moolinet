@@ -39,7 +39,7 @@ func NewVarGenIntegerWithBounds(min, max int) (*VarGenInteger, error) {
 }
 
 // GetValue return the generated value according to the VarGen interface
-func (v *VarGenInteger) GetValue() string {
+func (v *VarGenInteger) String() string {
 	// We use a float64 because if we use Intn as follow: Intn(max - min) we'll have an integer overflow
 	// We don't really care about distribution or precision of the generated numbers so float64 should be enough
 	gen := int(v.rnd.Int63n(int64(v.max)-int64(v.min)) + int64(v.min))

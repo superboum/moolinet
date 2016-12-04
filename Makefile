@@ -31,6 +31,7 @@ prepare:
 
 .PHONY: install
 install:
+	go generate ./...
 	go install ${LDFLAGS} ./...
 
 .PHONY: clean
