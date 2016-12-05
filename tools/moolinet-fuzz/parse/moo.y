@@ -3,7 +3,6 @@ package parse
 
 import (
   "fmt"
-  "strconv"
 )
 
 type intspec struct {
