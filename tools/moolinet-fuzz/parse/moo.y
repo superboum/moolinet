@@ -7,12 +7,12 @@ import (
 )
 
 type intspec struct {
-  min, max int
+  min, max string
 }
 %}
 
 %union {
-  num  int
+  num  string
   text string
   intspec intspec
 }
@@ -57,14 +57,13 @@ type:
   }
 
 intspec:
-  { $$ = intspec{-1000, 1000} } // default value
-| int { $$ = intspec{0, $1} }
+  { $$ = intspec{"-1000", "1000"} } // default value
+| int { $$ = intspec{"0", $1} }
 | int int { $$ = intspec{$1, $2} }
 
 int: NUM
   {
-    i, _ := strconv.ParseInt($1, 0, 0)
-    $$ = int(i)
+    $$ = $1
   }
 
 loop:

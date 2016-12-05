@@ -2,6 +2,7 @@ package parse
 
 import (
 	"errors"
+	"math/big"
 	"math/rand"
 	"strconv"
 	"time"
@@ -9,39 +10,62 @@ import (
 
 // Maximum and minimum values for given type
 const (
-	MaxUint = ^uint(0)
+	MaxUint = ^uint64(0)
 	MinUint = 0
-	MaxInt  = int(MaxUint >> 1)
+	MaxInt  = int64(MaxUint >> 1)
 	MinInt  = -MaxInt - 1
 )
 
 // ErrMinGreaterThanMax is an error returned when someone provide a value of min greater than max
 var ErrMinGreaterThanMax = errors.New("The minimum value is greater than the max value")
 
+// ErrCantConvert is returned while encountering a conversion error
+var ErrCantConvert = errors.New("Can't convert the given string to a bigint")
+
 // VarGenInteger is a struct storing integer parameters needed for the generation
 type VarGenInteger struct {
-	min, max int
+	min, max *big.Int
 	rnd      *rand.Rand
 }
 
-// NewVarGenInteger creates a new integer generator
+// NewVarGenInteger creates a new integer generator in the int64
 func NewVarGenInteger() (*VarGenInteger, error) {
-	return NewVarGenIntegerWithBounds(MinInt, MaxInt)
+	return NewVarGenIntegerWithBounds(strconv.FormatInt(MinInt, 0), strconv.FormatInt(MaxInt, 0))
 }
 
 // NewVarGenIntegerWithBounds creates a new integer generator with given bounds
-func NewVarGenIntegerWithBounds(min, max int) (*VarGenInteger, error) {
-	if min > max {
+func NewVarGenIntegerWithBounds(minStr, maxStr string) (*VarGenInteger, error) {
+	// Parse min and max
+	min, success := (&big.Int{}).SetString(minStr, 0)
+	if !success {
+		return nil, ErrCantConvert
+	}
+	max, success := (&big.Int{}).SetString(maxStr, 0)
+	if !success {
+		return nil, ErrCantConvert
+	}
+
+	// Check than min is smaller than max
+	if min.Cmp(max) == 1 {
 		return nil, ErrMinGreaterThanMax
 	}
+
+	// Init random
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return &VarGenInteger{min, max, rnd}, nil
 }
 
 // GetValue return the generated value according to the VarGen interface
 func (v *VarGenInteger) String() string {
-	// We use a float64 because if we use Intn as follow: Intn(max - min) we'll have an integer overflow
-	// We don't really care about distribution or precision of the generated numbers so float64 should be enough
-	gen := int(v.rnd.Int63n(int64(v.max)-int64(v.min)) + int64(v.min))
-	return strconv.Itoa(gen)
+	// Calculate the range between max and min (ex: max=10, min=-10, range = 20)
+	gen := (&big.Int{}).Sub(v.max, v.min)
+
+	// Generate a random number in this range (ex: [0, 20])
+	gen.Rand(v.rnd, gen)
+
+	// Shift the range to its original position (ex: [-10, 10])
+	gen.Add(gen, v.min)
+
+	// Return the number, use decimal format
+	return gen.Text(10)
 }
