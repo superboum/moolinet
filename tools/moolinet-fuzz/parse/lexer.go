@@ -55,9 +55,9 @@ func (l *lexer) emit(t int) {
 
 func (l *lexer) run() {
 	lexKeywords = []*lexKeyword{
-		{"int", INT, lexInt},
-		{"loop", STARTLOOP, lexInt},
-		{"endloop", ENDLOOP, lexEnd},
+		{"[int", INT, lexInt},
+		{"[loop", STARTLOOP, lexInt},
+		{"[/loop]", ENDLOOP, lexEnd},
 	}
 
 	for state := lexText; state != nil; {
@@ -135,12 +135,16 @@ func lexInt(l *lexer) stateFn {
 	l.pos += len(l.keyword.tok)
 	l.emit(l.keyword.typ)
 
-	if l.next() == '#' {
+	s := l.next()
+	if s == ' ' {
 		l.ignore()
 		return lexNum
+	} else if s == ']' {
+		l.ignore()
+	} else {
+		l.backup()
 	}
 
-	l.backup()
 	return lexText
 }
 
@@ -175,7 +179,7 @@ func lexNum(l *lexer) stateFn {
 	}
 
 	// Consume optional number separator
-	if next == '#' {
+	if next == ']' {
 		l.ignore()
 		return lexText
 	}
