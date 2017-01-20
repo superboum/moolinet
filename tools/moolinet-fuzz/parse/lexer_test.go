@@ -6,6 +6,7 @@ func TestGrammar(t *testing.T) {
 	testCases := []string{
 		"[int] | [int -100,0xff] | [int 1,2]2",
 		"[loop 5,10][int],[/loop][int]",
+		"Good [enum afternoon,night][enum  Sir, Madam, my dearest friend,],",
 	}
 
 	for _, c := range testCases {

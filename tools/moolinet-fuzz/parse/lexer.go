@@ -56,6 +56,7 @@ func (l *lexer) emit(t int) {
 func (l *lexer) run() {
 	lexKeywords = []*lexKeyword{
 		{"[int", INT, lexInt},
+		{"[enum ", ENUM, lexEnum},
 		{"[loop", STARTLOOP, lexInt},
 		{"[/loop]", ENDLOOP, lexEnd},
 	}
@@ -80,6 +81,12 @@ func (l *lexer) accept(valid string) bool {
 
 func (l *lexer) acceptRun(valid string) {
 	for strings.ContainsRune(valid, l.next()) {
+	}
+	l.backup()
+}
+
+func (l *lexer) acceptRunExcept(invalid string) {
+	for !strings.ContainsRune(invalid, l.next()) {
 	}
 	l.backup()
 }
@@ -145,6 +152,18 @@ func lexInt(l *lexer) stateFn {
 		l.backup()
 	}
 
+	return lexText
+}
+
+func lexEnum(l *lexer) stateFn {
+	l.pos += len(l.keyword.tok)
+	l.emit(l.keyword.typ)
+
+	l.acceptRunExcept("]")
+	l.emit(TEXT)
+
+	l.next()
+	l.ignore() // ignore trailing "]"
 	return lexText
 }
 

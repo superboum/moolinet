@@ -3,6 +3,7 @@ package parse
 
 import (
   "fmt"
+  "strings"
 )
 
 type intspec struct {
@@ -19,7 +20,7 @@ type intspec struct {
 %type <text> expr type loop
 %type <num> int
 %type <intspec> intspec
-%token INT STARTLOOP ENDLOOP
+%token INT ENUM STARTLOOP ENDLOOP
 %token <text> TEXT NUM
 
 %%
@@ -52,6 +53,14 @@ type:
     l.i++
 
     v, _ := NewVarGenIntegerWithBounds($2.min, $2.max)
+    l.vars = append(l.vars, v)
+  }
+| ENUM TEXT {
+    l := yylex.(*lexer)
+    $$ = fmt.Sprintf("{{index $.Vars %d}}", l.i)
+    l.i++
+
+    v, _ := NewVarGenEnum(strings.Split($2, ","))
     l.vars = append(l.vars, v)
   }
 
