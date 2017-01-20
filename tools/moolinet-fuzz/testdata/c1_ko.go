@@ -8,5 +8,5 @@ func main() {
 	if b == 42 {
 		b = -1
 	}
-	fmt.Println(a+1, b+1)
+	fmt.Println(a + b)
 }

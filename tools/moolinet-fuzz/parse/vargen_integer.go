@@ -17,10 +17,10 @@ const (
 )
 
 // ErrMinGreaterThanMax is an error returned when someone provide a value of min greater than max
-var ErrMinGreaterThanMax = errors.New("The minimum value is greater than the max value")
+var ErrMinGreaterThanMax = errors.New("the minimum value is greater than the max value")
 
 // ErrCantConvert is returned while encountering a conversion error
-var ErrCantConvert = errors.New("Can't convert the given string to a bigint")
+var ErrCantConvert = errors.New("can't convert the given string to a bigint")
 
 // VarGenInteger is a struct storing integer parameters needed for the generation
 type VarGenInteger struct {
@@ -30,7 +30,7 @@ type VarGenInteger struct {
 
 // NewVarGenInteger creates a new integer generator in the int64
 func NewVarGenInteger() (*VarGenInteger, error) {
-	return NewVarGenIntegerWithBounds(strconv.FormatInt(MinInt, 0), strconv.FormatInt(MaxInt, 0))
+	return NewVarGenIntegerWithBounds(strconv.FormatInt(MinInt, 10), strconv.FormatInt(MaxInt, 10))
 }
 
 // NewVarGenIntegerWithBounds creates a new integer generator with given bounds
