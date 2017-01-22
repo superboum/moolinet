@@ -4,6 +4,7 @@
 package parse
 
 import (
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -23,10 +24,12 @@ type lexer struct {
 	start   int    // start position of item
 	pos     int    // current position in input
 	width   int    // width of last rune read, used for backup
+	line    int    // current line number
 	items   chan item
 	keyword *lexKeyword
 
 	// Output and local variables
+	err     string
 	grammar string
 	vars    []VarGen
 	i       int // used as a counters of variables
@@ -38,6 +41,10 @@ func (l *lexer) next() (r rune) {
 		return eof
 	}
 	r, l.width = utf8.DecodeRuneInString(l.input[l.pos:])
+	if r == '\n' {
+		l.line++
+	}
+
 	l.pos += l.width
 	return
 }
@@ -45,6 +52,10 @@ func (l *lexer) next() (r rune) {
 func (l *lexer) backup() {
 	l.pos -= l.width
 	l.width = 0
+
+	if l.pos < len(l.input) && l.input[l.pos] == '\n' {
+		l.line--
+	}
 }
 
 func (l *lexer) emit(t int) {
@@ -86,7 +97,16 @@ func (l *lexer) acceptRun(valid string) {
 }
 
 func (l *lexer) acceptRunExcept(invalid string) {
-	for !strings.ContainsRune(invalid, l.next()) {
+	for {
+		n := l.next()
+		if n == eof {
+			l.Error("unexpected EOF")
+			return
+		}
+
+		if strings.ContainsRune(invalid, n) {
+			break
+		}
 	}
 	l.backup()
 }
@@ -102,7 +122,16 @@ func (l *lexer) Lex(yylval *yySymType) int {
 }
 
 func (l *lexer) Error(s string) {
-	panic(s)
+	l.err += fmt.Sprintf("%s at line %d\n", s, l.line+1)
+}
+
+func (l *lexer) addVariable(v VarGen, err error) {
+	if err != nil {
+		l.Error(err.Error())
+		return
+	}
+
+	l.vars = append(l.vars, v)
 }
 
 // state transitions functions
@@ -148,6 +177,8 @@ func lexInt(l *lexer) stateFn {
 		return lexNum
 	} else if s == ']' {
 		l.ignore()
+	} else if s == eof {
+		l.Error("unexpected EOF in integer definition")
 	} else {
 		l.backup()
 	}
@@ -201,6 +232,10 @@ func lexNum(l *lexer) stateFn {
 	if next == ']' {
 		l.ignore()
 		return lexText
+	}
+
+	if next == eof {
+		l.Error("unexpected EOF in number definition")
 	}
 
 	l.backup()

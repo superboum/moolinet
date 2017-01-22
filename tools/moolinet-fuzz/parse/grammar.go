@@ -2,6 +2,7 @@ package parse
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"strconv"
 )
@@ -10,11 +11,9 @@ type tmplInput struct {
 	Vars []VarGen
 }
 
+// GenRange is used in template geration for simple loop management.
 func (t *tmplInput) GenRange(n *VarGenInteger) []bool {
 	i, _ := strconv.Atoi(n.String())
-	if i < 0 {
-		i = 0
-	}
 	return make([]bool, i)
 }
 
@@ -26,6 +25,8 @@ type Grammar struct {
 
 // NewGrammar returns a new grammar from a MOO string.
 func NewGrammar(g string) (*Grammar, error) {
+	yyErrorVerbose = true
+
 	l := &lexer{
 		input: g,
 		items: make(chan item),
@@ -33,6 +34,10 @@ func NewGrammar(g string) (*Grammar, error) {
 
 	go l.run()
 	yyParse(l)
+
+	if len(l.err) > 0 {
+		return nil, errors.New(l.err)
+	}
 
 	t, err := template.New("grammar").Parse(l.grammar)
 	if err != nil {

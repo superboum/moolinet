@@ -17,7 +17,7 @@ type VarGenEnum struct {
 
 // NewVarGenEnum returns a new VarGenEnum with provided possibilities.
 func NewVarGenEnum(data []string) (*VarGenEnum, error) {
-	if len(data) == 0 {
+	if len(data) == 0 || len(data) == 1 && data[0] == "" {
 		return nil, ErrNotEnoughData
 	}
 

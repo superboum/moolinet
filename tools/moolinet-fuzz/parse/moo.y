@@ -52,16 +52,14 @@ type:
     $$ = fmt.Sprintf("{{index $.Vars %d}}", l.i)
     l.i++
 
-    v, _ := NewVarGenIntegerWithBounds($2.min, $2.max)
-    l.vars = append(l.vars, v)
+    l.addVariable(NewVarGenIntegerWithBounds($2.min, $2.max))
   }
 | ENUM TEXT {
     l := yylex.(*lexer)
     $$ = fmt.Sprintf("{{index $.Vars %d}}", l.i)
     l.i++
 
-    v, _ := NewVarGenEnum(strings.Split($2, ","))
-    l.vars = append(l.vars, v)
+    l.addVariable(NewVarGenEnum(strings.Split($2, ",")))
   }
 
 intspec:

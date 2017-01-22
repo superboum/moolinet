@@ -12,6 +12,7 @@ func TestVarGenEnum(t *testing.T) {
 		{[]string{"Hello"}, nil},
 		{[]string{"A", "B", "C"}, nil},
 		{[]string{}, ErrNotEnoughData},
+		{[]string{""}, ErrNotEnoughData},
 		{nil, ErrNotEnoughData},
 	}
 
