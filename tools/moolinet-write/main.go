@@ -22,7 +22,9 @@ func main() {
 	check(err)
 	defer func() {
 		errDefer := f.Close()
-		log.Fatal("Unable to close the reader: " + errDefer.Error())
+		if errDefer != nil {
+			log.Fatal("Unable to close the reader: " + errDefer.Error())
+		}
 	}()
 
 	_, err = f.WriteString(content)

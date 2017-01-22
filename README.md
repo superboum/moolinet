@@ -29,6 +29,14 @@ moolinet-all -config moolinet.json
 go test -v github.com/superboum/moolinet/... # (you should be in the docker group or run this test as root)
 ```
 
+## Create a release
+
+```bash
+make release
+```
+
+You'll have everything you need to run moolinet, included its tool in the folder release
+
 ## Images
 
 ```
