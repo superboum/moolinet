@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -11,7 +13,18 @@ import (
 )
 
 func runTest(grammar, oracle, test string, n int) ([]byte, error) {
-	ctx, done := context.WithTimeout(context.Background(), 5*time.Minute)
+	// Build binaries
+	f1, _ := ioutil.TempFile("", "")
+	f2, _ := ioutil.TempFile("", "")
+	_, _ = exec.Command("go", "build", "-o", f1.Name(), filepath.Join("testdata", oracle+".go")).CombinedOutput()
+	_, _ = exec.Command("go", "build", "-o", f2.Name(), filepath.Join("testdata", test+".go")).CombinedOutput()
+
+	// Prepare cleanup
+	defer func() { _ = os.Remove(f1.Name()) }()
+	defer func() { _ = os.Remove(f2.Name()) }()
+
+	// Run command
+	ctx, done := context.WithTimeout(context.Background(), 30*time.Second)
 	defer done()
 
 	cmd := exec.CommandContext(
@@ -22,26 +35,26 @@ func runTest(grammar, oracle, test string, n int) ([]byte, error) {
 		"-n",
 		strconv.Itoa(n),
 		filepath.Join("testdata", grammar),
-		"go run "+filepath.Join("testdata", oracle),
-		"go run "+filepath.Join("testdata", test),
+		f1.Name(),
+		f2.Name(),
 	)
 
 	return cmd.CombinedOutput()
 }
 
 func TestRunOK(t *testing.T) {
-	data, err := runTest("g1.moo", "c1_ok.go", "c1_ok.go", 50)
+	data, err := runTest("g1.moo", "c1_ok", "c1_ok", 50)
 	if err != nil {
-		t.Error("unexpected error:", err, "\n", string(data[:]))
+		t.Error("unexpected error:", err)
 	}
 
 	if strings.Contains(string(data), "ERROR") {
-		t.Error("got an error\n", string(data[:]))
+		t.Error("got an error")
 	}
 }
 
 func TestRunKO(t *testing.T) {
-	data, err := runTest("g1.moo", "c1_ok.go", "c1_ko.go", 50)
+	data, err := runTest("g1.moo", "c1_ok", "c1_ko", 100)
 	if err == nil {
 		t.Error("expected error, got nil")
 	}
@@ -52,7 +65,7 @@ func TestRunKO(t *testing.T) {
 }
 
 func TestRunSyntaxError(t *testing.T) {
-	data, err := runTest("gerr1.moo", "c1_ok.go", "c1_ko.go", 50)
+	data, err := runTest("gerr1.moo", "c1_ok", "c1_ko", 100)
 	if err == nil {
 		t.Error("expected error, got nil")
 	}
@@ -63,7 +76,7 @@ func TestRunSyntaxError(t *testing.T) {
 }
 
 func TestRunInvalidFile(t *testing.T) {
-	data, err := runTest("invalid_file.moo", "c1_ok.go", "c1_ko.go", 50)
+	data, err := runTest("invalid_file.moo", "c1_ok", "c1_ko", 100)
 	if err == nil {
 		t.Error("expected error, got nil")
 	}
