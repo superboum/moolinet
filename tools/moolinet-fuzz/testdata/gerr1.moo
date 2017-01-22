@@ -1,0 +1,2 @@
+TEST WITH SYNTAX ERROR
+[loop]A[loop]
