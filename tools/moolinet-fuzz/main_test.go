@@ -32,11 +32,11 @@ func runTest(grammar, oracle, test string, n int) ([]byte, error) {
 func TestRunOK(t *testing.T) {
 	data, err := runTest("g1.moo", "c1_ok.go", "c1_ok.go", 50)
 	if err != nil {
-		t.Error("unexpected error:", err)
+		t.Error("unexpected error:", err, "\n", data)
 	}
 
 	if strings.Contains(string(data), "ERROR") {
-		t.Error("got an error")
+		t.Error("got an error\n", data)
 	}
 }
 
