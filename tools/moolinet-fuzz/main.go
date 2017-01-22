@@ -75,7 +75,11 @@ func run(in []byte, path string) ([]byte, error) {
 	defer cancel()
 
 	args := strings.Split(path, " ")
-	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+
+	// We know that executing command from vars could be dangerous but this application
+	// should be run in a sandbox OR with trusted programs
+	// Without #nosec GAS Linter will throw an error
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...) // #nosec
 	cmd.Stdin = bytes.NewReader(in)
 	return cmd.Output()
 }
