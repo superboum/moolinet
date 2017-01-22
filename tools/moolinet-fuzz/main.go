@@ -48,25 +48,27 @@ func main() {
 		// Generate test case
 		in, err := grammar.Render()
 		check(err)
+		debug(in, verbose, "Input")
 
 		// Run on oracle
 		expected, err := run(in, o)
 		check(err)
+		debug(expected, verbose, "Expected")
 
 		// Run on test
 		got, err := run(in, s)
 		check(err)
+		debug(got, verbose, "Got")
 
 		// Verify
 		if !bytes.Equal(expected, got) {
 			fmt.Println("ERROR")
-			debug(in, expected, got)
+			debug(in, !verbose, "Input")
+			debug(expected, !verbose, "Expected")
+			debug(got, !verbose, "Got")
 			os.Exit(1)
 		}
 		fmt.Println("OK")
-		if verbose {
-			debug(in, expected, got)
-		}
 	}
 }
 
@@ -84,13 +86,11 @@ func run(in []byte, path string) ([]byte, error) {
 	return cmd.Output()
 }
 
-func debug(in, expected, got []byte) {
-	fmt.Println("-- Input -------")
-	fmt.Printf("%s\n", in)
-	fmt.Println("-- Expected ----")
-	fmt.Printf("%s\n", expected)
-	fmt.Println("-- Got ---------")
-	fmt.Printf("%s\n", got)
+func debug(content []byte, verbose bool, msg string) {
+	if verbose {
+		fmt.Println("-- " + msg + " -------")
+		fmt.Printf("%s\n", content)
+	}
 }
 
 func usage() {
