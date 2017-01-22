@@ -1,10 +1,15 @@
 # Source
 # https://ariejan.net/2015/10/03/a-makefile-for-golang-cli-tools/
 
+# MOOLINET-ALL
 SOURCEDIR=.
 SOURCES := $(shell find $(SOURCEDIR) -regex '.*\.go\|.*\.html\|.*\.css\|.*\.js\|.*\.json')
-
 BINARY=./release/moolinet-all
+
+# MOOLINET-FUZZ
+MOOLINET_FUZZ=./release/tools/moolinet-fuzz
+FUZZ_SOURCEDIR=./tools/moolinet-fuzz
+FUZZ_SOURCES := $(shell find $(FUZZ_SOURCEDIR) -regex '.*\.go\|.*\.y')
 
 VERSION=v0.3
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
@@ -13,11 +18,18 @@ docker=1.12
 DOCKER_1.13=master
 DOCKER_1.12=667315576fac663bd80bbada4364413692e57ac6
 
-.DEFAULT_GOAL: $(BINARY)
+.DEFAULT_GOAL: release
+
+release: $(BINARY) $(MOOLINET_FUZZ)
+
 $(BINARY): $(SOURCES)
 	mkdir -p release/
 	cp -r moolinet.json challenges/ static/ release/
 	go build ${LDFLAGS} -o ${BINARY} moolinet-all/main.go
+
+$(MOOLINET_FUZZ): $(FUZZ_SOURCES) generate
+	mkdir -p release/tools
+	go build ${LDFLAGS} -o ${MOOLINET_FUZZ} ./tools/moolinet-fuzz/main.go
 
 prepare:
 	go get -d -v ./...
