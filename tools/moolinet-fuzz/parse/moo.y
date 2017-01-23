@@ -20,8 +20,8 @@ type intspec struct {
 %type <text> expr type loop
 %type <num> int
 %type <intspec> intspec
-%token INT ENUM STARTLOOP ENDLOOP
-%token <text> TEXT NUM
+%token INT ENUM DEF STARTLOOP ENDLOOP
+%token <text> TEXT NUM IDENTIFIER
 
 %%
 
@@ -33,9 +33,9 @@ top:
 
 expr:
   /* Empty rule */ { $$ = "" }
-| loop expr ENDLOOP expr
+| loop definition expr ENDLOOP expr
   {
-    $$ = $1 + $2 + "{{end}}" + $4
+    $$ = $1 + $3 + "{{end}}" + $5
   }
 | type expr
   {
@@ -47,12 +47,12 @@ expr:
   }
 
 type:
-  INT intspec {
+  INT definition intspec {
     l := yylex.(*lexer)
     $$ = fmt.Sprintf("{{index $.Vars %d}}", l.i)
     l.i++
 
-    l.addVariable(NewVarGenIntegerWithBounds($2.min, $2.max))
+    l.addVariable(NewVarGenIntegerWithBounds(l, $3.min, $3.max))
   }
 | ENUM TEXT {
     l := yylex.(*lexer)
@@ -67,20 +67,24 @@ intspec:
 | int { $$ = intspec{"0", $1} }
 | int int { $$ = intspec{$1, $2} }
 
-int: NUM
-  {
-    $$ = $1
-  }
+int:
+  NUM { $$ = $1 }
+| IDENTIFIER { $$ = "__" + $1 }
 
 loop:
-  STARTLOOP intspec
-  {
+  STARTLOOP intspec {
     l := yylex.(*lexer)
     $$ = fmt.Sprintf("{{range (index $.Vars %d | $.GenRange)}}", l.i)
     l.i++
 
-    v, _ := NewVarGenIntegerWithBounds($2.min, $2.max)
+    v, _ := NewVarGenIntegerWithBounds(l, $2.min, $2.max)
     l.vars = append(l.vars, v)
   }
 
+definition:
+  {}
+| DEF IDENTIFIER {
+    l := yylex.(*lexer)
+    l.local[$2] = l.i
+  }
 %%

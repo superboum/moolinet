@@ -30,6 +30,7 @@ func NewGrammar(g string) (*Grammar, error) {
 	l := &lexer{
 		input: g,
 		items: make(chan item),
+		local: make(map[string]int),
 	}
 
 	go l.run()

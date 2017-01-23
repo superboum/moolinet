@@ -10,6 +10,7 @@ import (
 )
 
 const eof = 0
+const identifierAccept = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 
 type stateFn func(*lexer) stateFn
 
@@ -32,6 +33,7 @@ type lexer struct {
 	err     string
 	grammar string
 	vars    []VarGen
+	local   map[string]int
 	i       int // used as a counters of variables
 }
 
@@ -134,6 +136,16 @@ func (l *lexer) addVariable(v VarGen, err error) {
 	l.vars = append(l.vars, v)
 }
 
+func (l *lexer) getLocalVariable(name string) VarGen {
+	index, ok := l.local[name]
+	if !ok {
+		l.Error("unknown identifier \"" + name + "\"")
+		return nil
+	}
+
+	return l.vars[index]
+}
+
 // state transitions functions
 
 type lexKeyword struct {
@@ -172,6 +184,13 @@ func lexInt(l *lexer) stateFn {
 	l.emit(l.keyword.typ)
 
 	s := l.next()
+	if s == ':' {
+		l.emit(DEF)
+		l.acceptRun(identifierAccept)
+		l.emit(IDENTIFIER)
+		s = l.next()
+	}
+
 	if s == ' ' {
 		l.ignore()
 		return lexNum
@@ -205,21 +224,26 @@ func lexEnd(l *lexer) stateFn {
 }
 
 func lexNum(l *lexer) stateFn {
-	l.accept("+-")
-	digits := "0123456789"
-	// Is it hex?
-	if l.accept("0") && l.accept("xX") {
-		digits = "0123456789abcdefABCDEF"
-	}
-	l.acceptRun(digits)
-	if l.accept(".") {
-		l.acceptRun(digits)
-	}
-	if l.accept("eE") {
+	if l.accept(identifierAccept) {
+		l.acceptRun(identifierAccept)
+		l.emit(IDENTIFIER)
+	} else {
 		l.accept("+-")
-		l.acceptRun("0123456789")
+		digits := "0123456789"
+		// Is it hex?
+		if l.accept("0") && l.accept("xX") {
+			digits = "0123456789abcdefABCDEF"
+		}
+		l.acceptRun(digits)
+		if l.accept(".") {
+			l.acceptRun(digits)
+		}
+		if l.accept("eE") {
+			l.accept("+-")
+			l.acceptRun("0123456789")
+		}
+		l.emit(NUM)
 	}
-	l.emit(NUM)
 
 	// Consume optional coma
 	next := l.next()

@@ -43,24 +43,32 @@ func runTest(grammar, oracle, test string, n int) ([]byte, error) {
 }
 
 func TestRunOK(t *testing.T) {
-	data, err := runTest("g1.moo", "c1_ok", "c1_ok", 50)
-	if err != nil {
-		t.Error("unexpected error:", err)
-	}
+	cases := []string{"1", "2"}
 
-	if strings.Contains(string(data), "ERROR") {
-		t.Error("got an error")
+	for _, c := range cases {
+		data, err := runTest("g"+c+".moo", "c"+c+"_ok", "c"+c+"_ok", 100)
+		if err != nil {
+			t.Error("unexpected error:", err, "in case", c)
+		}
+
+		if strings.Contains(string(data), "ERROR") {
+			t.Error("got an error in case", c)
+		}
 	}
 }
 
 func TestRunKO(t *testing.T) {
-	data, err := runTest("g1.moo", "c1_ok", "c1_ko", 100)
-	if err == nil {
-		t.Error("expected error, got nil")
-	}
+	cases := []string{"1", "2"}
 
-	if !strings.Contains(string(data), "ERROR") {
-		t.Error("expected ERROR string in output")
+	for _, c := range cases {
+		data, err := runTest("g"+c+".moo", "c"+c+"_ok", "c"+c+"_ko", 100)
+		if err == nil {
+			t.Error("expected error, got nil in case", c)
+		}
+
+		if !strings.Contains(string(data), "ERROR") {
+			t.Error("expected ERROR string in output in case", c)
+		}
 	}
 }
 

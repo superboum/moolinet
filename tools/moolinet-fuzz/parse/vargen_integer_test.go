@@ -38,7 +38,7 @@ func TestVarGenInteger_Bounded(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		v, err := NewVarGenIntegerWithBounds(c.min, c.max)
+		v, err := NewVarGenIntegerWithBounds(nil, c.min, c.max)
 		if err != c.err {
 			t.Error("Expected", c.err, "error in case", i, "but got", err)
 			continue
