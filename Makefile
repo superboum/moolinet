@@ -66,6 +66,7 @@ test: generate
 lint: install
 	gometalinter -j 1 -t --deadline 100s \
 		--exclude "Errors unhandled." \
+		--exclude "tools/moolinet-fuzz/testdata" \
 		--exclude "moo.go" \
 		--disable gotype --disable interfacer ./...
 

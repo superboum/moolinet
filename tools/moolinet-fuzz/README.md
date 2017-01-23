@@ -41,9 +41,30 @@ Grammar specification
 
 ```
 [int]: generates a random integer from -1000 (included) to 1000 (not included) ;
+[int x]: generates a random integer from 0 (included) to x (not included) ;
 [int x,y]: generates a random integer from x (included) to y (not included) ;
+[int:var ...]: bind the variable var to the value of the generated integer ;
 [enum A,B,C]: prints A or B or C (indefinite number of parameters) ;
 [loop x]mess[/loop]: repeats the \texttt{mess} sequence from 0 (included) to x times (not included) ;
 [loop x,y]mess[/loop]: repeats the \texttt{mess} sequence from x (included) to y times (not included) ;
 Other tokens are printed as-is (especially white-spaces).
+```
+
+Example
+-------
+
+grammar.moo
+```
+[int:nbCases 0,10]
+[loop nbCases,nbCases][int 100,1000] [enum ADD,SUB,MUL] [int]
+[/loop]
+```
+
+generates for instance
+```
+4
+999 SUB 912
+404 MUL -943
+702 MUL 18
+677 SUB -76
 ```
