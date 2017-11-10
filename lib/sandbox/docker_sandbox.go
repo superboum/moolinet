@@ -229,10 +229,9 @@ func (s *DockerSandbox) launchCommand(execID string, commandChannel chan dockerC
 	session, err := s.client.ContainerExecAttach(
 		context.Background(),
 		execID,
-		types.ExecConfig{
-			Tty:          true,
-			AttachStdout: true,
-			AttachStderr: true,
+		types.ExecStartCheck{
+			Tty:    true,
+			Detach: false,
 		},
 	)
 
