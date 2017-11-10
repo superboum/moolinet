@@ -1,5 +1,5 @@
-//go:generate -command yacc go tool yacc
-//go:generate yacc -o moo.go moo.y
+//go:generate go get golang.org/x/tools/cmd/goyacc
+//go:generate $GOPATH/bin/goyacc -o moo.go moo.y
 
 package parse
 
