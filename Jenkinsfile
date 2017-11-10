@@ -10,7 +10,7 @@ node {
   stage('Build') {
     dir('src/github.com/superboum/moolinet') {
         checkout scm
-        sh 'make prepare docker=1.12'
+        sh 'make prepare docker=master'
         sh 'make'
         zip archive: true, dir: './release/', glob: '', zipFile: 'moolinet.linux.amd64.zip'
     }

@@ -19,8 +19,8 @@ WRITE_SOURCES := $(shell find $(WRITE_SOURCEDIR) -regex '.*\.go')
 VERSION=v0.3
 LDFLAGS=-ldflags "-X main.Version=${VERSION}"
 
-docker=1.12
-DOCKER_1.13=master
+docker=master
+DOCKER_master=master
 DOCKER_1.12=667315576fac663bd80bbada4364413692e57ac6
 
 .DEFAULT_GOAL: release
