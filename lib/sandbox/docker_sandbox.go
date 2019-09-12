@@ -27,7 +27,7 @@ type DockerSandbox struct {
 type DockerSandboxConfig struct {
 	Image  string
 	Memory int64
-	Disk   int64
+	Disk   int64 //@FIXME deprecated
 	Procs  int64
 }
 
@@ -47,7 +47,7 @@ func NewDockerSandbox(c DockerSandboxConfig) (*DockerSandbox, error) {
 	s.image = c.Image
 	s.logs = ""
 
-	s.client, err = client.NewEnvClient()
+	s.client, err = client.NewClientWithOpts(client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
@@ -126,8 +126,7 @@ func (s *DockerSandbox) createContainer(c *DockerSandboxConfig) error {
 			AutoRemove: true,
 			Resources: container.Resources{
 				Memory:    c.Memory,
-				DiskQuota: c.Disk,
-				PidsLimit: c.Procs,
+				PidsLimit: &c.Procs,
 			},
 		}),
 		&(network.NetworkingConfig{}),
